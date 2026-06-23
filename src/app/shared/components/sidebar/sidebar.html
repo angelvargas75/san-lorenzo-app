@@ -1,0 +1,39 @@
+<!-- Botón hamburguesa (solo visible en móvil) -->
+<button class="menu-toggle-btn" (click)="toggleMenu()">
+  <i class="bi bi-list fs-4"></i>
+</button>
+
+<!-- Overlay oscuro (solo móvil, al abrir el menú) -->
+<div class="sidebar-overlay" [class.active]="isOpen" (click)="toggleMenu()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" [class.active]="isOpen">
+
+  <!-- Marca / Logo -->
+  <div class="brand">
+    <div class="brand-logo"></div>
+    <div class="brand-text">{{ brandText }}</div>
+  </div>
+
+  <!-- Menú dinámico: recorre los items que pasa el padre -->
+  <nav class="nav flex-column">
+    @for (item of menuItems; track item.route) {
+      <a
+        class="nav-link"
+        [routerLink]="[basePath, item.route]"
+        routerLinkActive="active"
+        (click)="closeMenuOnMobile()"
+      >
+        <i class="bi" [ngClass]="item.icon"></i> {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <!-- Footer: cerrar sesión -->
+  <div class="sidebar-footer nav flex-column">
+    <a class="nav-link" routerLink="/login">
+      <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+    </a>
+  </div>
+
+</aside>
