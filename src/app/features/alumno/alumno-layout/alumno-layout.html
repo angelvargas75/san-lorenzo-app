@@ -1,0 +1,10 @@
+<!-- Sidebar (hijo): le pasamos el menú y la ruta base del alumno -->
+<app-sidebar
+  [menuItems]="menuAlumno"
+  basePath="/alumno"
+></app-sidebar>
+
+<!-- Contenido principal: aquí se cargan las secciones hijas -->
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
