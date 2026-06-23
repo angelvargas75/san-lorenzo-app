@@ -1,0 +1,96 @@
+.section-card {
+  width: 100%;
+  max-width: 980px;
+}
+
+.section-subtitle {
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.form-wrapper,
+.report-filter-form {
+  max-width: 560px;
+}
+
+.form-section-title {
+  font-weight: 700;
+  margin: 1.5rem 0 1rem;
+  color: #111827;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.form-control,
+.form-select {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  background-color: #f9fafb;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 0.15rem rgba(37, 99, 235, 0.15);
+}
+
+.btn-primary-custom {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 24px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.btn-primary-custom:hover {
+  background-color: #1d4ed8;
+}
+
+.custom-table {
+  min-width: 720px;
+}
+
+.custom-table thead th {
+  background-color: #f3f4f6;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 14px;
+}
+
+.custom-table tbody td {
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.action-link {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .section-card,
+  .form-wrapper,
+  .report-filter-form {
+    max-width: 100%;
+  }
+
+  .btn-primary-custom {
+    width: 100%;
+  }
+}

@@ -5,6 +5,10 @@ import { DocenteLayout } from './features/docente/docente-layout/docente-layout'
 import { CoordinadorLayout } from './features/coordinador/coordinador-layout/coordinador-layout';
 import { Inicio } from './features/alumno/inicio/inicio';
 import { authGuard } from './core/guards/auth-guard';
+import { Reportes } from './features/coordinador/reportes/reportes';
+import { Comunicados } from './features/coordinador/comunicados/comunicados';
+import { Configuracion } from './features/coordinador/configuracion/configuracion';
+import { Perfil } from './features/coordinador/perfil/perfil';
 
 export const routes: Routes = [
   // Al entrar, redirige al login
@@ -41,7 +45,10 @@ export const routes: Routes = [
     component: CoordinadorLayout,
     canActivate: [authGuard],
     children: [
-      // Dev 4 y 5 agregarán aquí sus secciones
+      { path: 'reportes', component: Reportes },
+      { path: 'comunicados', component: Comunicados },
+      { path: 'configuracion', component: Configuracion },
+      { path: 'perfil', component: Perfil }
     ]
   },
 

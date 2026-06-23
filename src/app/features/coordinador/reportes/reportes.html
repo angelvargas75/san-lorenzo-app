@@ -1,0 +1,81 @@
+<app-page-title titulo="Reportes"></app-page-title>
+
+<div class="section-card">
+  <h5 class="section-subtitle">Filtros</h5>
+
+  <form class="report-filter-form">
+    <div class="mb-3">
+      <label class="form-label">Grado</label>
+      <select class="form-select">
+        <option selected>Seleccionar grado</option>
+        <option>1ro de Secundaria</option>
+        <option>2do de Secundaria</option>
+        <option>3ro de Secundaria</option>
+        <option>4to de Secundaria</option>
+        <option>5to de Secundaria</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Docente</label>
+      <select class="form-select">
+        <option selected>Seleccionar docente</option>
+        <option>Prof. Ana Torres</option>
+        <option>Prof. Carlos Ruiz</option>
+        <option>Prof. Laura Gómez</option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Periodo</label>
+      <select class="form-select">
+        <option selected>Seleccionar periodo</option>
+        <option>Bimestre 1</option>
+        <option>Bimestre 2</option>
+        <option>Bimestre 3</option>
+        <option>Bimestre 4</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn-primary-custom">Generar reporte</button>
+  </form>
+
+  <h5 class="section-subtitle mt-5">Historial de reportes</h5>
+
+  <div class="table-responsive">
+    <table class="table table-borderless align-middle custom-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Grado</th>
+          <th>Docente</th>
+          <th>Periodo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2026-06-20</td>
+          <td>5to Secundaria</td>
+          <td>Prof. Ana Torres</td>
+          <td>Bimestre 2</td>
+          <td><a href="#" class="action-link">Descargar</a></td>
+        </tr>
+        <tr>
+          <td>2026-06-18</td>
+          <td>4to Secundaria</td>
+          <td>Prof. Carlos Ruiz</td>
+          <td>Bimestre 2</td>
+          <td><a href="#" class="action-link">Descargar</a></td>
+        </tr>
+        <tr>
+          <td>2026-06-15</td>
+          <td>3ro Secundaria</td>
+          <td>Prof. Laura Gómez</td>
+          <td>Bimestre 2</td>
+          <td><a href="#" class="action-link">Descargar</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
