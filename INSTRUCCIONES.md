@@ -19,8 +19,6 @@ Este documento explica cómo configurar el proyecto y qué le toca a cada integr
 | Dev 4 | Victor Ortiz | `v7237` | `feature/coordinador-1` | Coordinador (parte 1) |
 | Dev 5 | Andre Lauda | `Andre-Lauda` | `feature/coordinador-2` | Coordinador (parte 2) |
 
-> **Nota:** Si el integrante de Dev 5 no participa, el senior (Angel) asume la
-> rama `feature/coordinador-2` y completa esas secciones.
 
 ---
 
