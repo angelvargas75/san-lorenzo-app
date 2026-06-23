@@ -1,2 +1,16 @@
-<h1 class="page-title">Inicio del Alumno</h1>
-<p>✅ Si ves esto con el sidebar a la izquierda, ¡todo funciona!</p>
+<app-page-title titulo="Inicio del Alumno"></app-page-title>
+
+<div class="row g-4">
+  <div class="col-md-3">
+    <app-stat-card label="Promedio General" value="16.5" trend="+0.8"></app-stat-card>
+  </div>
+  <div class="col-md-3">
+    <app-stat-card label="Asistencia" value="95%" trend="+2%"></app-stat-card>
+  </div>
+  <div class="col-md-3">
+    <app-stat-card label="Tareas Pendientes" value="3" trend="-1" [trendUp]="false"></app-stat-card>
+  </div>
+  <div class="col-md-3">
+    <app-stat-card label="Cursos" value="8"></app-stat-card>
+  </div>
+</div>

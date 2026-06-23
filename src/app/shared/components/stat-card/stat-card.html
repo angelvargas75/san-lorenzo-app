@@ -1,1 +1,7 @@
-<p>stat-card works!</p>
+<div class="summary-card">
+  <div class="card-label">{{ label }}</div>
+  <div class="card-value">{{ value }}</div>
+  @if (trend) {
+    <div [class]="trendUp ? 'trend-up' : 'trend-down'">{{ trend }}</div>
+  }
+</div>
