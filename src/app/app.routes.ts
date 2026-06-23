@@ -4,6 +4,7 @@ import { AlumnoLayout } from './features/alumno/alumno-layout/alumno-layout';
 import { DocenteLayout } from './features/docente/docente-layout/docente-layout';
 import { CoordinadorLayout } from './features/coordinador/coordinador-layout/coordinador-layout';
 import { Inicio } from './features/alumno/inicio/inicio';
+import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
   // Al entrar, redirige al login
@@ -16,6 +17,7 @@ export const routes: Routes = [
   {
     path: 'alumno',
     component: AlumnoLayout,
+    canActivate: [authGuard],
     children: [
          { path: '', redirectTo: 'inicio', pathMatch: 'full' },
         { path: 'inicio', component: Inicio },
@@ -27,6 +29,7 @@ export const routes: Routes = [
   {
     path: 'docente',
     component: DocenteLayout,
+    canActivate: [authGuard],
     children: [
       // Dev 3 agregará aquí sus secciones
     ]
@@ -36,6 +39,7 @@ export const routes: Routes = [
   {
     path: 'coordinador',
     component: CoordinadorLayout,
+    canActivate: [authGuard],
     children: [
       // Dev 4 y 5 agregarán aquí sus secciones
     ]
