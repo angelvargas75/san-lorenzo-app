@@ -4,32 +4,38 @@ import { AlumnoLayout } from './features/alumno/alumno-layout/alumno-layout';
 import { DocenteLayout } from './features/docente/docente-layout/docente-layout';
 import { CoordinadorLayout } from './features/coordinador/coordinador-layout/coordinador-layout';
 import { Inicio } from './features/alumno/inicio/inicio';
+import { Calificaciones } from './features/alumno/calificaciones/calificaciones';
+import { Tareas } from './features/alumno/tareas/tareas';
+import { Horarios } from './features/alumno/horarios/horarios';
+import { Asistencia } from './features/alumno/asistencia/asistencia';
+import { Perfil as PerfilAlumno } from './features/alumno/perfil/perfil';
 import { authGuard } from './core/guards/auth-guard';
 import { Reportes } from './features/coordinador/reportes/reportes';
 import { Comunicados } from './features/coordinador/comunicados/comunicados';
 import { Configuracion } from './features/coordinador/configuracion/configuracion';
-import { Perfil } from './features/coordinador/perfil/perfil';
+import { Perfil as PerfilCoordinador } from './features/coordinador/perfil/perfil';
 
 export const routes: Routes = [
-  // Al entrar, redirige al login
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-
-  // Ruta del login
   { path: 'login', component: Login },
 
-  // Ruta del alumno (el layout es el padre, los hijos los agregará Dev 2)
+  // Ruta del alumno
   {
     path: 'alumno',
     component: AlumnoLayout,
     canActivate: [authGuard],
     children: [
-         { path: '', redirectTo: 'inicio', pathMatch: 'full' },
-        { path: 'inicio', component: Inicio },
-      // Dev 2 agregará aquí: inicio, calificaciones, tareas, etc.
+      { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+      { path: 'inicio', component: Inicio },
+      { path: 'calificaciones', component: Calificaciones },
+      { path: 'tareas', component: Tareas },
+      { path: 'horarios', component: Horarios },
+      { path: 'asistencia', component: Asistencia },
+      { path: 'perfil', component: PerfilAlumno },
     ]
   },
 
-  // Ruta del docente
+  // Ruta del docente (usa lazy loading)
   {
     path: 'docente',
     component: DocenteLayout,
@@ -67,7 +73,7 @@ export const routes: Routes = [
     ]
   },
 
-  // Ruta del coordinador (Dev 4 y 5 agregarán los hijos)
+  // Ruta del coordinador
   {
     path: 'coordinador',
     component: CoordinadorLayout,
@@ -76,10 +82,9 @@ export const routes: Routes = [
       { path: 'reportes', component: Reportes },
       { path: 'comunicados', component: Comunicados },
       { path: 'configuracion', component: Configuracion },
-      { path: 'perfil', component: Perfil }
+      { path: 'perfil', component: PerfilCoordinador },
     ]
   },
 
-  // Si la ruta no existe, redirige al login
   { path: '**', redirectTo: 'login' }
 ];

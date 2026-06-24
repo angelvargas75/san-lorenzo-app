@@ -33,7 +33,19 @@ body {
 .text-primary-green { color: var(--primary-green) !important; }
 .bg-primary-green { background-color: var(--primary-green) !important; }
 
-/* Tabla de datos de alumnos (notas, asistencia) */
+/* ============================================
+   SUBTÍTULO DE SECCIÓN (reutilizable en todas las vistas)
+   ============================================ */
+.section-subtitle {
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+/* ============================================
+   TABLA DE DATOS (docente: notas, asistencia)
+   ============================================ */
 .table-card {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -69,15 +81,9 @@ body {
   }
 }
 
-/* Subtítulo de sección (reutilizable en todas las vistas) */
-.section-subtitle {
-  font-weight: 700;
-  font-size: 18px;
-  margin-top: 40px;
-  margin-bottom: 20px;
-}
-
-/* Botones de acción (reutilizables en vistas de docente) */
+/* ============================================
+   BOTONES DE ACCIÓN (docente)
+   ============================================ */
 .btn-primary-action {
   background-color: var(--link-blue);
   color: white;
@@ -104,4 +110,47 @@ body {
   cursor: pointer;
 
   &:hover { background-color: #d1d5db; }
+}
+
+/* ============================================
+   TARJETAS DE CURSOS (alumno: inicio, calificaciones)
+   ============================================ */
+.book-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  border: 1px solid #F3F4F6;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.book-preview {
+  width: 80px;
+  height: 100px;
+  background-color: #F3F4F6;
+  border-radius: 4px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   TARJETAS DE TAREAS (alumno: tareas)
+   ============================================ */
+.task-card {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #F3F4F6;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.task-img {
+  width: 120px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
