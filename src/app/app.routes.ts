@@ -44,6 +44,10 @@ export const routes: Routes = [
         path: 'notas',
         loadComponent: () => import('./features/docente/notas/notas').then(m => m.Notas),
       },
+      {
+        path: 'asistencia',
+        loadComponent: () => import('./features/docente/asistencia/asistencia').then(m => m.Asistencia),
+      },
     ]
   },
 

@@ -1,0 +1,130 @@
+.curso-info {
+  display: flex;
+  gap: 40px;
+  margin: 0;
+
+  div {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+
+  dt {
+    font-weight: 700;
+    font-size: 14px;
+
+    &::after { content: ':'; }
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    color: #374151;
+  }
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 50px;
+
+  &.presente { background-color: #dcfce7; color: #166534; }
+  &.ausente  { background-color: #fee2e2; color: #991b1b; }
+}
+
+.table-wrapper {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.asistencia-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    font-weight: 600;
+    font-size: 14px;
+    color: #6B7280;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid #F3F4F6;
+    text-align: left;
+  }
+
+  tbody td {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #374151;
+    border-bottom: 1px solid #F3F4F6;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.btn-asistencia {
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: opacity 0.15s;
+  letter-spacing: 0.5px;
+
+  &.presente {
+    background-color: #45a834;
+    color: white;
+    &:hover { opacity: 0.85; }
+  }
+
+  &.ausente {
+    background-color: #ef4444;
+    color: white;
+    &:hover { opacity: 0.85; }
+  }
+}
+
+.save-area {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+
+.save-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #166534;
+}
+
+.btn-save {
+  background-color: #111827;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+
+  &:hover { background-color: #374151; }
+}
