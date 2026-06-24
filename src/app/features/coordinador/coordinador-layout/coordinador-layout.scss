@@ -1,0 +1,13 @@
+.main-content {
+  margin-left: 260px;
+  padding: 40px 60px;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 991.98px) {
+  .main-content {
+    margin-left: 0;
+    padding: 80px 20px 40px 20px;
+  }
+}
