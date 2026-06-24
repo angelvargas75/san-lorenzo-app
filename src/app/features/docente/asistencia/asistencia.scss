@@ -41,37 +41,6 @@
   &.ausente  { background-color: #fee2e2; color: #991b1b; }
 }
 
-.table-wrapper {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.asistencia-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  thead th {
-    font-weight: 600;
-    font-size: 14px;
-    color: #6B7280;
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid #F3F4F6;
-    text-align: left;
-  }
-
-  tbody td {
-    padding: 14px 20px;
-    font-size: 14px;
-    color: #374151;
-    border-bottom: 1px solid #F3F4F6;
-    vertical-align: middle;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-}
 
 .btn-asistencia {
   border: none;

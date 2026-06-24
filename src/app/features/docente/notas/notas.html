@@ -62,8 +62,9 @@
 @if (registrosFiltrados().length === 0) {
   <p class="text-muted fst-italic">No hay registros para los filtros seleccionados.</p>
 } @else {
-  <div class="table-responsive">
-    <table class="notas-table">
+  <div class="table-card">
+    <div class="table-responsive">
+    <table class="alumno-table">
       <thead>
         <tr>
           <th scope="col">Alumno</th>
@@ -87,5 +88,6 @@
         }
       </tbody>
     </table>
+    </div>
   </div>
 }

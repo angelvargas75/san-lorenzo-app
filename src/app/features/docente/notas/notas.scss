@@ -35,33 +35,6 @@
   gap: 10px;
 }
 
-.notas-table {
-  width: 100%;
-  min-width: 600px;
-  border-collapse: collapse;
-
-  thead th {
-    border-bottom: none;
-    font-weight: 600;
-    font-size: 14px;
-    color: #6B7280;
-    padding: 0 8px 15px;
-    text-align: left;
-  }
-
-  tbody td,
-  tbody th {
-    padding: 16px 8px;
-    font-size: 14px;
-    border-bottom: 1px solid #F3F4F6;
-    vertical-align: middle;
-  }
-
-  tbody tr:last-child td,
-  tbody tr:last-child th {
-    border-bottom: none;
-  }
-}
 
 .alumno-nombre {
   font-weight: 700;
