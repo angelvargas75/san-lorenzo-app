@@ -1,0 +1,66 @@
+.alert-card {
+  background-color: #F3F4F6;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.alert-body {
+  position: relative;
+  z-index: 1;
+}
+
+.alert-deco {
+  background-color: #EADBC8;
+  width: 300px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+
+  i {
+    font-size: 80px;
+    color: white;
+    opacity: 0.5;
+  }
+}
+
+.table thead th {
+  border-bottom: none;
+  font-weight: 600;
+  font-size: 14px;
+  color: #6B7280;
+  padding-bottom: 15px;
+}
+
+.table tbody td {
+  padding: 16px 8px;
+  font-size: 14px;
+  color: #374151;
+  border-bottom: 1px solid #F3F4F6;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ver-mas {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--link-blue);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,50 @@
+<app-page-title titulo="Inicio"></app-page-title>
+
+<div class="d-flex gap-3 mb-5 flex-wrap">
+  <button class="btn-primary-action" routerLink="/docente/asistencia">Registrar Asistencia</button>
+  <button class="btn-secondary-action" routerLink="/docente/notas">Ingresar Nota</button>
+  <button class="btn-secondary-action" routerLink="/docente/comunicaciones">Enviar Comunicado</button>
+</div>
+
+<h2 class="section-subtitle">Alertas y Pendientes</h2>
+<div class="alert-card mb-5">
+  <div class="alert-body">
+    <h5 class="fw-bold">Registros Pendientes</h5>
+    <p class="text-muted small" style="max-width: 400px;">
+      Tienes {{ pendientes }} registros de asistencia pendientes.
+      Completa ahora para mantener tus registros actualizados.
+    </p>
+    <button class="btn-secondary-action mt-2" routerLink="/docente/asistencia">Completar Ahora</button>
+  </div>
+  <div class="alert-deco" aria-hidden="true">
+    <i class="bi bi-check2-square"></i>
+  </div>
+</div>
+
+<h2 class="section-subtitle">Mis Cursos Asignados</h2>
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Curso</th>
+        <th scope="col">Grado</th>
+        <th scope="col">Sección</th>
+        <th scope="col">Horario</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (curso of cursos; track curso.id) {
+        <tr>
+          <td class="fw-bold">{{ curso.nombre }}</td>
+          <td class="text-primary">{{ curso.grado }}</td>
+          <td class="text-primary">{{ curso.seccion }}</td>
+          <td>{{ curso.horario }}</td>
+          <td>
+            <a class="ver-mas" routerLink="/docente/cursos">Ver más</a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
