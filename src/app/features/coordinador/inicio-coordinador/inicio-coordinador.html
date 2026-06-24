@@ -1,1 +1,71 @@
-<p>inicio-coordinador works!</p>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="page-title mb-0">Inicio</h1>
+</div>
+
+<h6 class="fw-bold mb-3">Accesos Rápidos</h6>
+<div class="d-flex gap-3 mb-5 flex-wrap">
+    <button class="btn-blue">Generar Reporte</button>
+    <button class="btn-gray">Administrar Tareas</button>
+</div>
+
+<h6 class="fw-bold mb-3">Resumen</h6>
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="summary-card">
+            <div class="card-label">% Cumplimiento de Notas</div>
+            <div class="card-value">95%</div>
+            <div class="trend-up">+5%</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="summary-card">
+            <div class="card-label">Total Alumnos Matriculados</div>
+            <div class="card-value">520</div>
+            <div class="trend-up">+10</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="summary-card">
+            <div class="card-label">Docentes Activos</div>
+            <div class="card-value">35</div>
+            <div class="trend-down">-2</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="summary-card">
+            <div class="card-label">Promedio de Asistencia Hoy</div>
+            <div class="card-value">92%</div>
+            <div class="trend-up">+3%</div>
+        </div>
+    </div>
+</div>
+
+<h6 class="fw-bold mb-3">Tendencias</h6>
+<div class="row gy-4">
+    <div class="col-md-6">
+        <p class="small fw-bold text-muted mb-2">Tendencia de Calificaciones</p>
+        <div class="table-responsive-wrapper">
+            <svg viewBox="0 0 300 100" class="w-100" style="height: 150px; overflow: visible; min-width: 300px;">
+                <path d="M0,80 Q30,20 60,60 T120,60 T180,20 T240,80 T300,40" fill="none" stroke="#4B5563" stroke-width="3" />
+            </svg>
+        </div>
+        <div class="d-flex justify-content-between small text-muted mt-2">
+            <span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <p class="small fw-bold text-muted mb-2">Reportes de Conducta</p>
+        <div class="chart-placeholder px-4">
+            <div class="bar-chart-col" style="height: 80%;"></div>
+            <div class="bar-chart-col" style="height: 90%;"></div>
+            <div class="bar-chart-col" style="height: 85%;"></div>
+            <div class="bar-chart-col" style="height: 95%;"></div>
+            <div class="bar-chart-col" style="height: 80%;"></div>
+            <div class="bar-chart-col" style="height: 85%;"></div>
+            <div class="bar-chart-col" style="height: 80%;"></div>
+        </div>
+         <div class="d-flex justify-content-between small text-muted mt-2 px-4">
+            <span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span><span>Jul</span>
+        </div>
+    </div>
+</div>

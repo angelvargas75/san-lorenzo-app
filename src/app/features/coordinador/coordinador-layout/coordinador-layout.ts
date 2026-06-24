@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-coordinador-layout',
-  imports: [],
+  standalone: true,
+  imports: [RouterOutlet],
   templateUrl: './coordinador-layout.html',
-  styleUrl: './coordinador-layout.scss',
+  styleUrl: './coordinador-layout.scss'
 })
 export class CoordinadorLayout {}

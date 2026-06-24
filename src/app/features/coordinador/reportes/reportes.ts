@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-reportes',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './reportes.html',
-  styleUrl: './reportes.scss',
+  styleUrl: './reportes.scss'
 })
 export class Reportes {}

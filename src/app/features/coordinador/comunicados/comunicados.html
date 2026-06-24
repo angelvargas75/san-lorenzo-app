@@ -1,1 +1,39 @@
-<p>comunicados works!</p>
+<div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+    <h1 class="page-title mb-0">Comunicados Masivos</h1>
+</div>
+<p class="text-muted small mb-4">Redacta y programa comunicados para grupos específicos de la comunidad educativa.</p>
+
+<div style="max-width: 650px;">
+    <div class="mb-3">
+        <label class="fw-bold small mb-2">Título del Comunicado</label>
+        <input type="text" class="form-control" placeholder="Ej. Recordatorio de reunión de padres">
+    </div>
+    <div class="mb-4">
+        <label class="fw-bold small mb-2">Contenido del Comunicado</label>
+        <textarea class="form-control" rows="4"></textarea>
+    </div>
+
+    <label class="fw-bold small mb-2">Segmentación de Audiencia</label>
+    <div class="d-flex gap-4 mb-3 flex-wrap">
+        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small fw-bold">Rol</label></div>
+        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small fw-bold">Grado</label></div>
+        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small fw-bold">Nivel</label></div>
+    </div>
+
+    <div class="mb-3"><select class="form-select"><option>Seleccionar Rol</option></select></div>
+    <div class="mb-3"><select class="form-select"><option>Seleccionar Grado</option></select></div>
+    <div class="mb-4"><select class="form-select"><option>Seleccionar Nivel</option></select></div>
+
+    <div class="mb-3">
+        <label class="fw-bold small mb-2">Fecha de Envío</label>
+        <input type="text" class="form-control" placeholder="Seleccionar fecha">
+    </div>
+    <div class="mb-5">
+        <label class="fw-bold small mb-2">Hora de Envío</label>
+        <input type="text" class="form-control" placeholder="Seleccionar hora">
+    </div>
+
+    <div class="text-end">
+        <button class="btn-blue">Programar Envío</button>
+    </div>
+</div>

@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-perfil',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './perfil.html',
-  styleUrl: './perfil.scss',
+  styleUrl: './perfil.scss'
 })
 export class Perfil {}
