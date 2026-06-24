@@ -1,16 +1,16 @@
 <app-page-title titulo="Inicio"></app-page-title>
 
 <div class="d-flex gap-3 mb-5 flex-wrap">
-  <button class="btn-primary-action" routerLink="/docente/asistencia">Registrar Asistencia</button>
-  <button class="btn-secondary-action" routerLink="/docente/notas">Ingresar Nota</button>
-  <button class="btn-secondary-action" routerLink="/docente/comunicaciones">Enviar Comunicado</button>
+  <a class="btn-primary-action" routerLink="/docente/asistencia">Registrar Asistencia</a>
+  <a class="btn-secondary-action" routerLink="/docente/notas">Ingresar Nota</a>
+  <a class="btn-secondary-action" routerLink="/docente/comunicaciones">Enviar Comunicado</a>
 </div>
 
 <h2 class="section-subtitle">Alertas y Pendientes</h2>
 <div class="alert-card mb-5">
   <div class="alert-body">
     <h5 class="fw-bold">Registros Pendientes</h5>
-    <p class="text-muted small" style="max-width: 400px;">
+    <p class="text-muted small alert-desc">
       Tienes {{ pendientes }} registros de asistencia pendientes.
       Completa ahora para mantener tus registros actualizados.
     </p>

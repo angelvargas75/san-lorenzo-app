@@ -44,8 +44,8 @@ export class Horarios {
   });
 
   readonly clases = computed((): ClaseHorario[] => {
-    const esFinDeSemana = this.diaSeleccionado() % 7 === 0 || this.diaSeleccionado() % 7 === 6;
-    return esFinDeSemana ? [] : this.clasesMock;
+    const d = this.diaSeleccionado();
+    return (d % 7 === 0 || d % 7 === 6) ? [] : this.clasesMock;
   });
 
   seleccionarDia(dia: number): void {

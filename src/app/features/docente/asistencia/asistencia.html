@@ -33,7 +33,7 @@
     <tbody>
       @for (alumno of alumnos(); track alumno.id) {
         <tr>
-          <td>{{ alumno.nombre }}</td>
+          <th scope="row" class="fw-normal">{{ alumno.nombre }}</th>
           <td class="text-end">
             <button
               type="button"

@@ -9,7 +9,7 @@
     @if (clases().length === 0) {
       <p class="text-muted fst-italic">Sin clases este día.</p>
     } @else {
-      <ol class="clase-list" role="list">
+      <ol class="clase-list">
         @for (clase of clases(); track clase.nombre) {
           <li class="clase-item">
             <div class="clase-icon" aria-hidden="true">
