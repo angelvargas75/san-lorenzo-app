@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
+import { StatCard } from '../../../shared/components/stat-card/stat-card';
 
 interface CursoAsignado {
   id: number;
@@ -12,12 +13,13 @@ interface CursoAsignado {
 
 @Component({
   selector: 'app-docente-inicio',
-  imports: [PageTitle, RouterLink],
+  imports: [PageTitle, RouterLink, StatCard],
   templateUrl: './docente-inicio.html',
   styleUrl: './docente-inicio.scss',
 })
 export class DocenteInicio {
   readonly pendientes = 3;
+  readonly totalAlumnos = 120;
 
   readonly cursos: CursoAsignado[] = [
     { id: 1, nombre: 'Matemáticas',        grado: '5to', seccion: 'A', horario: 'Lunes y Miércoles 8:00 AM - 9:30 AM' },
