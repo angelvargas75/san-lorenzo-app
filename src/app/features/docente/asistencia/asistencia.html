@@ -1,0 +1,65 @@
+<app-page-title titulo="Registro de Asistencia"></app-page-title>
+
+<dl class="curso-info mb-4">
+  <div>
+    <dt>Curso</dt>
+    <dd>{{ curso }}</dd>
+  </div>
+  <div>
+    <dt>Fecha</dt>
+    <dd>{{ fecha }}</dd>
+  </div>
+</dl>
+
+<div class="stats mb-3">
+  <span class="stat-badge presente">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    Presentes: {{ totalPresentes() }}
+  </span>
+  <span class="stat-badge ausente">
+    <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
+    Ausentes: {{ totalAusentes() }}
+  </span>
+</div>
+
+<div class="table-card mb-4">
+  <div class="table-responsive">
+  <table class="alumno-table">
+    <thead>
+      <tr>
+        <th scope="col">Alumno</th>
+        <th scope="col" class="text-end">Asistencia</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (alumno of alumnos(); track alumno.id) {
+        <tr>
+          <th scope="row" class="fw-normal">{{ alumno.nombre }}</th>
+          <td class="text-end">
+            <button
+              type="button"
+              [class]="alumno.presente ? 'btn-asistencia presente' : 'btn-asistencia ausente'"
+              [attr.aria-pressed]="alumno.presente"
+              (click)="toggleAsistencia(alumno.id)"
+            >
+              {{ alumno.presente ? 'Presente' : 'Ausente' }}
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="save-area">
+  @if (guardado()) {
+    <p role="status" class="save-msg">
+      <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+      Asistencia guardada correctamente.
+    </p>
+  }
+  <button type="button" class="btn-save" (click)="guardarAsistencia()">
+    Guardar Asistencia
+  </button>
+</div>

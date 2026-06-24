@@ -1,0 +1,90 @@
+<app-page-title titulo="Horario"></app-page-title>
+
+<div class="row g-5">
+
+  <!-- Columna izquierda: lista de clases del día -->
+  <section class="col-md-6" aria-labelledby="dia-heading">
+    <h2
+      id="dia-heading"
+      class="section-subtitle mt-0"
+      [class.text-muted]="nombreDia() === null"
+    >
+      {{ nombreDia() ?? 'Selecciona un día' }}
+    </h2>
+
+    @if (clases().length > 0) {
+      <ol class="clase-list">
+        @for (clase of clases(); track clase.datetimeInicio) {
+          <li class="clase-item">
+            <div class="clase-icon" aria-hidden="true">
+              <i class="bi {{ clase.icon }}"></i>
+            </div>
+            <div>
+              <h3 class="clase-nombre">{{ clase.nombre }}</h3>
+              <small class="text-muted">
+                <time [attr.datetime]="clase.datetimeInicio">
+                  {{ clase.horario }}
+                </time>
+              </small>
+            </div>
+          </li>
+        }
+      </ol>
+    } @else {
+      <p class="text-muted fst-italic">
+        {{ diaSeleccionado() === null ? 'Selecciona un día para ver el horario.' : 'Sin clases este día.' }}
+      </p>
+    }
+  </section>
+
+  <!-- Columna derecha: calendario dinámico -->
+  <section class="col-md-6" aria-labelledby="cal-heading">
+    <div class="calendar-header">
+      <button type="button" class="cal-nav" aria-label="Mes anterior" (click)="anteriorMes()">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+      </button>
+      <h2 id="cal-heading" class="cal-month">{{ tituloMes() }}</h2>
+      <button type="button" class="cal-nav" aria-label="Mes siguiente" (click)="siguienteMes()">
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <table class="calendar-table" role="grid" [attr.aria-label]="'Calendario de ' + tituloMes()">
+      <thead>
+        <tr>
+          <th scope="col" abbr="Domingo">D</th>
+          <th scope="col" abbr="Lunes">L</th>
+          <th scope="col" abbr="Martes">M</th>
+          <th scope="col" abbr="Miércoles">X</th>
+          <th scope="col" abbr="Jueves">J</th>
+          <th scope="col" abbr="Viernes">V</th>
+          <th scope="col" abbr="Sábado">S</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (semana of semanas(); track $index) {
+          <tr>
+            @for (dia of semana; track $index) {
+              <td>
+                @if (dia !== null) {
+                  <button
+                    type="button"
+                    class="cal-day"
+                    [class.hoy]="diaDeHoy() === dia"
+                    [class.selected]="diaSeleccionado() === dia"
+                    [attr.aria-label]="dia + ' de ' + tituloMes()"
+                    [attr.aria-pressed]="diaSeleccionado() === dia"
+                    (click)="seleccionarDia(dia)"
+                  >
+                    {{ dia }}
+                  </button>
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+</div>

@@ -29,13 +29,41 @@ export const routes: Routes = [
     ]
   },
 
-  // Ruta del docente (Dev 3 agregará los hijos)
+  // Ruta del docente
   {
     path: 'docente',
     component: DocenteLayout,
     canActivate: [authGuard],
     children: [
-      // Dev 3 agregará aquí sus secciones
+      { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+      {
+        path: 'inicio',
+        loadComponent: () => import('./features/docente/inicio/docente-inicio').then(m => m.DocenteInicio),
+      },
+      {
+        path: 'cursos',
+        loadComponent: () => import('./features/docente/cursos/cursos').then(m => m.Cursos),
+      },
+      {
+        path: 'notas',
+        loadComponent: () => import('./features/docente/notas/notas').then(m => m.Notas),
+      },
+      {
+        path: 'asistencia',
+        loadComponent: () => import('./features/docente/asistencia/asistencia').then(m => m.Asistencia),
+      },
+      {
+        path: 'horarios',
+        loadComponent: () => import('./features/docente/horarios/horarios').then(m => m.Horarios),
+      },
+      {
+        path: 'comunicaciones',
+        loadComponent: () => import('./features/docente/comunicaciones/comunicaciones').then(m => m.Comunicaciones),
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./features/docente/perfil/perfil').then(m => m.Perfil),
+      },
     ]
   },
 

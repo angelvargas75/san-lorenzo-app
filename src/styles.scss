@@ -32,3 +32,76 @@ body {
 /* Clases reutilizables para el verde institucional */
 .text-primary-green { color: var(--primary-green) !important; }
 .bg-primary-green { background-color: var(--primary-green) !important; }
+
+/* Tabla de datos de alumnos (notas, asistencia) */
+.table-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.alumno-table {
+  width: 100%;
+  min-width: 580px;
+  border-collapse: collapse;
+
+  thead th {
+    font-weight: 600;
+    font-size: 14px;
+    color: #6B7280;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid #F3F4F6;
+    text-align: left;
+  }
+
+  tbody td,
+  tbody th {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #374151;
+    border-bottom: 1px solid #F3F4F6;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td,
+  tbody tr:last-child th {
+    border-bottom: none;
+  }
+}
+
+/* Subtítulo de sección (reutilizable en todas las vistas) */
+.section-subtitle {
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+/* Botones de acción (reutilizables en vistas de docente) */
+.btn-primary-action {
+  background-color: var(--link-blue);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+
+  &:hover { background-color: #1d4ed8; }
+}
+
+.btn-secondary-action {
+  background-color: #E5E7EB;
+  color: #1f2937;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+
+  &:hover { background-color: #d1d5db; }
+}

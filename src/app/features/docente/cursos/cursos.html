@@ -1,0 +1,69 @@
+<app-page-title titulo="Mis Cursos"></app-page-title>
+
+<fieldset class="filter-group mb-5">
+  <legend class="fw-bold mb-3">Filtrar</legend>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <label for="filtro-seccion" class="visually-hidden">Sección</label>
+      <select
+        id="filtro-seccion"
+        class="form-select"
+        (change)="filtroSeccion.set(getSelectValue($event))"
+      >
+        <option value="">Seleccionar Sección</option>
+        @for (s of secciones(); track s) {
+          <option [value]="s" [selected]="filtroSeccion() === s">Sección {{ s }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="filtro-grado" class="visually-hidden">Grado</label>
+      <select
+        id="filtro-grado"
+        class="form-select"
+        (change)="filtroGrado.set(getSelectValue($event))"
+      >
+        <option value="">Seleccionar Grado</option>
+        @for (g of grados(); track g) {
+          <option [value]="g" [selected]="filtroGrado() === g">Grado {{ g }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="filtro-curso" class="visually-hidden">Curso</label>
+      <select
+        id="filtro-curso"
+        class="form-select"
+        (change)="filtroCurso.set(getSelectValue($event))"
+      >
+        <option value="">Seleccionar Curso</option>
+        @for (n of nombresCursos(); track n) {
+          <option [value]="n" [selected]="filtroCurso() === n">{{ n }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</fieldset>
+
+@if (cursosFiltrados().length === 0) {
+  <p class="text-muted fst-italic">No hay cursos con los filtros seleccionados.</p>
+} @else {
+  <ul class="course-list" role="list">
+    @for (curso of cursosFiltrados(); track curso.id) {
+      <li>
+        <article class="course-card">
+          <div class="course-info">
+            <h2 class="course-name">{{ curso.nombre }}</h2>
+            <p class="course-meta">Grado: {{ curso.grado }}, Sección: {{ curso.seccion }}</p>
+            <button type="button" class="btn-pill-action">Ver Curso</button>
+          </div>
+          <figure class="course-preview" aria-hidden="true">
+            <div class="course-thumb" [style.background-color]="curso.color"></div>
+          </figure>
+        </article>
+      </li>
+    }
+  </ul>
+}

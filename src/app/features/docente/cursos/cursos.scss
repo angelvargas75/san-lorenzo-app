@@ -1,0 +1,75 @@
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.course-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.course-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.course-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-dark);
+}
+
+.course-meta {
+  color: var(--link-blue);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.course-preview {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.course-thumb {
+  width: 180px;
+  height: 120px;
+  border-radius: 12px;
+}
+
+.btn-pill-action {
+  background-color: #E5E7EB;
+  color: #1f2937;
+  border: none;
+  padding: 6px 20px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+
+  &:hover { background-color: #d1d5db; }
+}
+
+@media (max-width: 991.98px) {
+  .course-card {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 16px;
+    background: #fdfdfd;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+  }
+
+  .course-thumb {
+    width: 100%;
+    height: 150px;
+  }
+}

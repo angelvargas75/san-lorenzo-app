@@ -1,0 +1,86 @@
+<app-page-title titulo="Comunicaciones"></app-page-title>
+
+<h2 class="section-subtitle mt-0">Crear Comunicado</h2>
+<hr class="mb-4 opacity-25">
+
+<form class="comunicado-form" (submit)="onEnviar(); $event.preventDefault()">
+
+  <div class="mb-3">
+    <label for="com-seccion" class="visually-hidden">Sección</label>
+    <select id="com-seccion" class="form-select" [formField]="comunicadoForm.seccion">
+      <option value="">Seleccionar Sección</option>
+      @for (s of secciones; track s) {
+        <option [value]="s">Sección {{ s }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="com-grado" class="visually-hidden">Grado</label>
+    <select id="com-grado" class="form-select" [formField]="comunicadoForm.grado">
+      <option value="">Seleccionar Grado</option>
+      @for (g of grados; track g) {
+        <option [value]="g">Grado {{ g }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="com-curso" class="visually-hidden">Curso</label>
+    <select id="com-curso" class="form-select" [formField]="comunicadoForm.curso">
+      <option value="">Seleccionar Curso</option>
+      @for (c of cursos; track c) {
+        <option [value]="c">{{ c }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="com-dest" class="visually-hidden">Destinatarios</label>
+    <select id="com-dest" class="form-select" [formField]="comunicadoForm.destinatarios">
+      <option value="">Seleccionar destinatarios</option>
+      @for (d of destinatarios; track d) {
+        <option [value]="d">{{ d }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="com-asunto" class="visually-hidden">Asunto</label>
+    <input
+      id="com-asunto"
+      type="text"
+      class="form-control"
+      placeholder="Asunto"
+      [formField]="comunicadoForm.asunto"
+    />
+    @if (comunicadoForm.asunto().touched() && comunicadoForm.asunto().errors().length) {
+      <span class="error-msg" role="alert">{{ comunicadoForm.asunto().errors()[0].message }}</span>
+    }
+  </div>
+
+  <div class="mb-4">
+    <label for="com-mensaje" class="visually-hidden">Mensaje</label>
+    <textarea
+      id="com-mensaje"
+      class="form-control"
+      rows="6"
+      placeholder="Escribe tu comunicado aquí..."
+      [formField]="comunicadoForm.mensaje"
+    ></textarea>
+    @if (comunicadoForm.mensaje().touched() && comunicadoForm.mensaje().errors().length) {
+      <span class="error-msg" role="alert">{{ comunicadoForm.mensaje().errors()[0].message }}</span>
+    }
+  </div>
+
+  <div class="form-footer">
+    @if (enviado()) {
+      <p role="status" class="sent-msg">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        Comunicado enviado correctamente.
+      </p>
+    }
+    <button type="submit" class="btn-primary-action">Enviar</button>
+  </div>
+
+</form>

@@ -1,0 +1,52 @@
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  background-color: #E5E7EB;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  color: #1f2937;
+  cursor: pointer;
+  appearance: auto;
+
+  &:focus {
+    outline: 2px solid var(--link-blue);
+    outline-offset: 2px;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+
+.alumno-nombre {
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: left;
+}
+
+.nota-valor {
+  color: #3B82F6;
+  font-weight: 500;
+}
+
+.promedio {
+  font-weight: 700;
+}

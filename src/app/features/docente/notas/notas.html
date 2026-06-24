@@ -1,0 +1,93 @@
+<app-page-title titulo="Registro de Notas"></app-page-title>
+
+<p class="text-muted small mb-4">
+  Seleccione el curso, grado, sección y periodo para ver las calificaciones.
+</p>
+
+<div class="table-controls mb-4">
+  <div class="filters" role="group" aria-label="Filtros de notas">
+    <label for="sel-curso" class="visually-hidden">Curso</label>
+    <select
+      id="sel-curso"
+      class="filter-select"
+      (change)="filtroCurso.set(getSelectValue($event))"
+    >
+      @for (c of cursos; track c) {
+        <option [value]="c" [selected]="filtroCurso() === c">Curso: {{ c }}</option>
+      }
+    </select>
+
+    <label for="sel-grado" class="visually-hidden">Grado</label>
+    <select
+      id="sel-grado"
+      class="filter-select"
+      (change)="filtroGrado.set(getSelectValue($event))"
+    >
+      @for (g of grados; track g) {
+        <option [value]="g" [selected]="filtroGrado() === g">Grado: {{ g }}</option>
+      }
+    </select>
+
+    <label for="sel-seccion" class="visually-hidden">Sección</label>
+    <select
+      id="sel-seccion"
+      class="filter-select"
+      (change)="filtroSeccion.set(getSelectValue($event))"
+    >
+      @for (s of secciones; track s) {
+        <option [value]="s" [selected]="filtroSeccion() === s">Sección: {{ s }}</option>
+      }
+    </select>
+
+    <label for="sel-periodo" class="visually-hidden">Periodo</label>
+    <select
+      id="sel-periodo"
+      class="filter-select"
+      (change)="filtroPeriodo.set(getSelectValue($event))"
+    >
+      @for (p of periodos; track p) {
+        <option [value]="p" [selected]="filtroPeriodo() === p">Periodo: {{ p }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn-primary-action">
+      <i class="bi bi-upload me-2" aria-hidden="true"></i>Carga Masiva
+    </button>
+    <button type="button" class="btn-secondary-action">Guardar Cambios</button>
+  </div>
+</div>
+
+@if (registrosFiltrados().length === 0) {
+  <p class="text-muted fst-italic">No hay registros para los filtros seleccionados.</p>
+} @else {
+  <div class="table-card">
+    <div class="table-responsive">
+    <table class="alumno-table">
+      <thead>
+        <tr>
+          <th scope="col">Alumno</th>
+          <th scope="col">Nota 1</th>
+          <th scope="col">Nota 2</th>
+          <th scope="col">Nota 3</th>
+          <th scope="col">Nota 4</th>
+          <th scope="col">Nota 5</th>
+          <th scope="col">Promedio</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (registro of registrosFiltrados(); track registro.id) {
+          <tr>
+            <th scope="row" class="alumno-nombre">{{ registro.nombre }}</th>
+            @for (nota of registro.notas; track $index) {
+              <td class="nota-valor">{{ nota }}</td>
+            }
+            <td class="nota-valor promedio">{{ getPromedio(registro.notas) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    </div>
+  </div>
+}
