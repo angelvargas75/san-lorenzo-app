@@ -1,0 +1,107 @@
+<app-page-title titulo="Perfil"></app-page-title>
+
+<form class="perfil-form" (submit)="onGuardar(); $event.preventDefault()">
+
+  <section aria-labelledby="datos-personales">
+    <h2 id="datos-personales" class="section-subtitle mt-0">Datos Personales</h2>
+
+    <div class="mb-3">
+      <label for="p-nombre" class="form-label fw-bold small">Nombre Completo</label>
+      <input id="p-nombre" type="text" class="form-control" [formField]="perfilForm.nombreCompleto" />
+      @if (perfilForm.nombreCompleto().touched() && perfilForm.nombreCompleto().errors().length) {
+        <span class="error-msg" role="alert">{{ perfilForm.nombreCompleto().errors()[0].message }}</span>
+      }
+    </div>
+
+    <div class="mb-5">
+      <label for="p-correo" class="form-label fw-bold small">Correo Electrónico</label>
+      <input id="p-correo" type="email" class="form-control" [formField]="perfilForm.correo" />
+      @if (perfilForm.correo().touched() && perfilForm.correo().errors().length) {
+        <span class="error-msg" role="alert">{{ perfilForm.correo().errors()[0].message }}</span>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="info-academica">
+    <h2 id="info-academica" class="section-subtitle">Información Académica</h2>
+
+    <div class="mb-3">
+      <label for="p-rol" class="form-label fw-bold small">Rol / Cargo</label>
+      <input id="p-rol" type="text" class="form-control" [formField]="perfilForm.rol" />
+    </div>
+
+    <div class="mb-5">
+      <label for="p-asignaturas" class="form-label fw-bold small">Áreas / Asignaturas que Imparte</label>
+      <input id="p-asignaturas" type="text" class="form-control" [formField]="perfilForm.asignaturas" />
+    </div>
+  </section>
+
+  <section aria-labelledby="notificaciones">
+    <h2 id="notificaciones" class="section-subtitle">Notificaciones y Preferencias</h2>
+
+    <div class="prefs-card">
+
+      <div class="pref-row">
+        <div>
+          <p class="pref-title">Notificaciones por Correo Electrónico</p>
+          <small class="text-muted">Recibir notificaciones sobre cambios en el horario y avisos importantes.</small>
+        </div>
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="notif-correo"
+            [formField]="perfilForm.notifCorreo"
+            role="switch"
+            [attr.aria-labelledby]="'notif-correo-label'"
+          />
+          <label id="notif-correo-label" class="visually-hidden" for="notif-correo">
+            Notificaciones por correo
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-row">
+        <div>
+          <p class="pref-title">Notificaciones en la Aplicación</p>
+          <small class="text-muted">Recibir notificaciones sobre eventos importantes dentro de la app.</small>
+        </div>
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="notif-app"
+            [formField]="perfilForm.notifApp"
+            role="switch"
+            [attr.aria-labelledby]="'notif-app-label'"
+          />
+          <label id="notif-app-label" class="visually-hidden" for="notif-app">
+            Notificaciones en la aplicación
+          </label>
+        </div>
+      </div>
+
+      <div class="pref-row pref-row--last">
+        <div>
+          <p class="pref-title">Configuración Regional</p>
+          <small class="text-muted">Zona horaria y formato de fecha utilizados en la aplicación.</small>
+        </div>
+        <span class="fw-bold small">Lima, Perú</span>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="form-footer mt-4">
+    @if (guardado()) {
+      <p role="status" class="saved-msg">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        Cambios guardados correctamente.
+      </p>
+    }
+    <button type="submit" class="btn-primary-action" [disabled]="perfilForm().invalid()">
+      Guardar Cambios
+    </button>
+  </div>
+
+</form>
