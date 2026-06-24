@@ -32,3 +32,53 @@ body {
 /* Clases reutilizables para el verde institucional */
 .text-primary-green { color: var(--primary-green) !important; }
 .bg-primary-green { background-color: var(--primary-green) !important; }
+
+
+/* ============================================
+   CLASES COMPARTIDAS DE SECCIONES (alumno, etc.)
+   ============================================ */
+.section-subtitle {
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+.book-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  border: 1px solid #F3F4F6;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.book-preview {
+  width: 80px;
+  height: 100px;
+  background-color: #F3F4F6;
+  border-radius: 4px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+/* Tarjetas de tareas (seccion tareas) */
+.task-card {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #F3F4F6;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.task-img {
+  width: 120px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+

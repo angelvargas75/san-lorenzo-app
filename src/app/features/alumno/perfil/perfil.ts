@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { PageTitle } from '../../../shared/components/page-title/page-title';
 
 @Component({
   selector: 'app-perfil',
-  imports: [],
+  imports: [PageTitle],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
 })
