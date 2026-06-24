@@ -1,0 +1,50 @@
+<app-page-title titulo="Comunicados"></app-page-title>
+
+<div class="section-card">
+  <h5 class="section-subtitle">Crear comunicado</h5>
+
+  <form class="form-wrapper">
+    <div class="mb-3">
+      <label class="form-label">Título del comunicado</label>
+      <input type="text" class="form-control" placeholder="Ej. Reunión de padres de familia">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Contenido del comunicado</label>
+      <textarea class="form-control" rows="5" placeholder="Escriba el contenido del comunicado"></textarea>
+    </div>
+
+    <h6 class="form-section-title">Segmentación de audiencia</h6>
+
+    <div class="mb-3">
+      <label class="form-label">Rol</label>
+      <select class="form-select">
+        <option selected>Seleccionar rol</option>
+        <option>Padres de familia</option>
+        <option>Estudiantes</option>
+        <option>Docentes</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Grado</label>
+      <select class="form-select">
+        <option selected>Seleccionar grado</option>
+        <option>Primaria</option>
+        <option>Secundaria</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Fecha de envío</label>
+      <input type="date" class="form-control">
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Hora de envío</label>
+      <input type="time" class="form-control">
+    </div>
+
+    <button type="button" class="btn-primary-custom">Programar envío</button>
+  </form>
+</div>

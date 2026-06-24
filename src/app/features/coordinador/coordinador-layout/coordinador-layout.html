@@ -1,1 +1,8 @@
-<p>coordinador-layout works!</p>
+<app-sidebar
+  [menuItems]="menuCoordinador"
+  basePath="/coordinador"
+></app-sidebar>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

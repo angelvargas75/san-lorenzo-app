@@ -10,6 +10,10 @@ import { Horarios } from './features/alumno/horarios/horarios';
 import { Asistencia } from './features/alumno/asistencia/asistencia';
 import { Perfil } from './features/alumno/perfil/perfil';
 import { authGuard } from './core/guards/auth-guard';
+import { Reportes } from './features/coordinador/reportes/reportes';
+import { Comunicados } from './features/coordinador/comunicados/comunicados';
+import { Configuracion } from './features/coordinador/configuracion/configuracion';
+import { Perfil } from './features/coordinador/perfil/perfil';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -38,7 +42,12 @@ export const routes: Routes = [
     path: 'coordinador',
     component: CoordinadorLayout,
     canActivate: [authGuard],
-    children: []
+    children: [
+      { path: 'reportes', component: Reportes },
+      { path: 'comunicados', component: Comunicados },
+      { path: 'configuracion', component: Configuracion },
+      { path: 'perfil', component: Perfil }
+    ]
   },
   { path: '**', redirectTo: 'login' }
 ];
