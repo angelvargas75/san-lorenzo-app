@@ -15,6 +15,11 @@ import { Comunicados } from './features/coordinador/comunicados/comunicados';
 import { Configuracion } from './features/coordinador/configuracion/configuracion';
 import { Perfil as PerfilCoordinador } from './features/coordinador/perfil/perfil';
 
+import { InicioCoordinador } from './features/coordinador/inicio-coordinador/inicio-coordinador';
+import { Usuarios } from './features/coordinador/usuarios/usuarios';
+import { Academica } from './features/coordinador/academica/academica';
+import { Horarios as HorariosCoordinador } from './features/coordinador/horarios/horarios';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
@@ -79,6 +84,11 @@ export const routes: Routes = [
     component: CoordinadorLayout,
     canActivate: [authGuard],
     children: [
+       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+      { path: 'inicio', component: InicioCoordinador },
+      { path: 'usuarios', component: Usuarios },
+      { path: 'academica', component: Academica },
+      { path: 'horarios', component: HorariosCoordinador },
       { path: 'reportes', component: Reportes },
       { path: 'comunicados', component: Comunicados },
       { path: 'configuracion', component: Configuracion },
