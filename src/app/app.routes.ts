@@ -13,7 +13,8 @@ import { authGuard } from './core/guards/auth-guard';
 import { Reportes } from './features/coordinador/reportes/reportes';
 import { Comunicados } from './features/coordinador/comunicados/comunicados';
 import { Configuracion } from './features/coordinador/configuracion/configuracion';
-import { Perfil } from './features/coordinador/perfil/perfil';
+import { Perfil as PerfilAlumno } from './features/alumno/perfil/perfil';
+import { Perfil as PerfilCoordinador } from './features/coordinador/perfil/perfil';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -29,7 +30,7 @@ export const routes: Routes = [
       { path: 'tareas', component: Tareas },
       { path: 'horarios', component: Horarios },
       { path: 'asistencia', component: Asistencia },
-      { path: 'perfil', component: Perfil },
+      { path: 'perfil', component: PerfilAlumno },
     ]
   },
   {
@@ -46,7 +47,7 @@ export const routes: Routes = [
       { path: 'reportes', component: Reportes },
       { path: 'comunicados', component: Comunicados },
       { path: 'configuracion', component: Configuracion },
-      { path: 'perfil', component: Perfil }
+      { path: 'perfil', component: PerfilCoordinador }
     ]
   },
   { path: '**', redirectTo: 'login' }
