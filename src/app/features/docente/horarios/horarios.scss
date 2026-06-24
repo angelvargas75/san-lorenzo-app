@@ -90,9 +90,17 @@
 
   &:hover { background-color: #F3F4F6; }
 
+  &.hoy {
+    outline: 2px solid var(--link-blue);
+    outline-offset: 1px;
+    font-weight: 600;
+    color: var(--link-blue);
+  }
+
   &.selected {
     background-color: var(--link-blue);
     color: white;
     font-weight: 600;
+    outline: none;
   }
 }
