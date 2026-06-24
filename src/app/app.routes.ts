@@ -48,6 +48,10 @@ export const routes: Routes = [
         path: 'asistencia',
         loadComponent: () => import('./features/docente/asistencia/asistencia').then(m => m.Asistencia),
       },
+      {
+        path: 'horarios',
+        loadComponent: () => import('./features/docente/horarios/horarios').then(m => m.Horarios),
+      },
     ]
   },
 

@@ -1,0 +1,81 @@
+<app-page-title titulo="Horario"></app-page-title>
+
+<div class="row g-5">
+
+  <!-- Columna izquierda: lista de clases del día -->
+  <section class="col-md-6" aria-labelledby="dia-heading">
+    <h2 id="dia-heading" class="section-subtitle mt-0">{{ nombreDia() }}</h2>
+
+    @if (clases().length === 0) {
+      <p class="text-muted fst-italic">Sin clases este día.</p>
+    } @else {
+      <ol class="clase-list" role="list">
+        @for (clase of clases(); track clase.nombre) {
+          <li class="clase-item">
+            <div class="clase-icon" aria-hidden="true">
+              <i class="bi {{ clase.icon }}"></i>
+            </div>
+            <div>
+              <h3 class="clase-nombre">{{ clase.nombre }}</h3>
+              <small class="text-muted">
+                <time [attr.datetime]="clase.datetimeInicio + '/' + clase.datetimeFin">
+                  {{ clase.horario }}
+                </time>
+              </small>
+            </div>
+          </li>
+        }
+      </ol>
+    }
+  </section>
+
+  <!-- Columna derecha: calendario -->
+  <section class="col-md-6" aria-labelledby="cal-heading">
+    <div class="calendar-header">
+      <button type="button" class="cal-nav" aria-label="Mes anterior">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+      </button>
+      <h2 id="cal-heading" class="cal-month">Abril 2024</h2>
+      <button type="button" class="cal-nav" aria-label="Mes siguiente">
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <table class="calendar-table" role="grid" aria-label="Calendario de Abril 2024">
+      <thead>
+        <tr>
+          <th scope="col" abbr="Domingo">D</th>
+          <th scope="col" abbr="Lunes">L</th>
+          <th scope="col" abbr="Martes">M</th>
+          <th scope="col" abbr="Miércoles">X</th>
+          <th scope="col" abbr="Jueves">J</th>
+          <th scope="col" abbr="Viernes">V</th>
+          <th scope="col" abbr="Sábado">S</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (semana of calendarWeeks; track $index) {
+          <tr>
+            @for (dia of semana; track $index) {
+              <td>
+                @if (dia !== null) {
+                  <button
+                    type="button"
+                    class="cal-day"
+                    [class.selected]="diaSeleccionado() === dia"
+                    [attr.aria-label]="dia + ' de Abril'"
+                    [attr.aria-pressed]="diaSeleccionado() === dia"
+                    (click)="seleccionarDia(dia)"
+                  >
+                    {{ dia }}
+                  </button>
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+</div>
