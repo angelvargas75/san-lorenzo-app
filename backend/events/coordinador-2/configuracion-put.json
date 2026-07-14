@@ -1,0 +1,17 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "PUT /configuracion",
+  "rawPath": "/configuracion",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "PUT",
+      "path": "/configuracion"
+    }
+  },
+  "body": "{\"nombreInstitucion\":\"IEP Santiago Apóstol\",\"anioAcademico\":2026,\"periodoAcademico\":\"Tercer bimestre\",\"toleranciaMinutos\":15,\"umbralInasistencias\":4}",
+  "isBase64Encoded": false
+}

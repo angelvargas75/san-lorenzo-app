@@ -1,0 +1,16 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "GET /configuracion",
+  "rawPath": "/configuracion",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/configuracion"
+    }
+  },
+  "isBase64Encoded": false
+}
