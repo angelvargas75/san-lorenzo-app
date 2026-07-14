@@ -1,0 +1,19 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "GET /reportes/{id}",
+  "rawPath": "/reportes/1",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "pathParameters": {
+    "id": "1"
+  },
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/reportes/1"
+    }
+  },
+  "isBase64Encoded": false
+}

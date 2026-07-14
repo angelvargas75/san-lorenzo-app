@@ -1,0 +1,17 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "POST /reportes/generar",
+  "rawPath": "/reportes/generar",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/reportes/generar"
+    }
+  },
+  "body": "{\"tipoReporte\":\"ASISTENCIA\",\"grado\":\"Quinto de secundaria\",\"seccion\":\"A\",\"docenteId\":1,\"periodo\":\"Bimestre 1\",\"generadoPorUsuarioId\":1}",
+  "isBase64Encoded": false
+}

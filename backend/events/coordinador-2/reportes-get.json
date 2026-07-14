@@ -1,0 +1,20 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "GET /reportes",
+  "rawPath": "/reportes",
+  "rawQueryString": "tipoReporte=ASISTENCIA&periodo=Bimestre%201",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "queryStringParameters": {
+    "tipoReporte": "ASISTENCIA",
+    "periodo": "Bimestre 1"
+  },
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/reportes"
+    }
+  },
+  "isBase64Encoded": false
+}
