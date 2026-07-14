@@ -1,0 +1,19 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "GET /coordinadores/{id}/perfil",
+  "rawPath": "/coordinadores/1/perfil",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "pathParameters": {
+    "id": "1"
+  },
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/coordinadores/1/perfil"
+    }
+  },
+  "isBase64Encoded": false
+}

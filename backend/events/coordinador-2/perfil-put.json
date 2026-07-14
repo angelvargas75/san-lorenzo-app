@@ -1,0 +1,20 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "PUT /coordinadores/{id}/perfil",
+  "rawPath": "/coordinadores/1/perfil",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "pathParameters": {
+    "id": "1"
+  },
+  "requestContext": {
+    "http": {
+      "method": "PUT",
+      "path": "/coordinadores/1/perfil"
+    }
+  },
+  "body": "{\"nombres\":\"Coordinador\",\"apellidos\":\"Académico\",\"correo\":\"coordinador@santiagoapostol.edu.pe\",\"telefono\":\"987654321\",\"areaGestion\":\"Gestión académica\",\"notificacionesCorreo\":true,\"notificacionesSistema\":false}",
+  "isBase64Encoded": false
+}

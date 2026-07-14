@@ -273,3 +273,82 @@ GO
 SELECT *
 FROM dbo.Reporte;
 GO
+
+/* ============================================================
+   PERFIL DEL COORDINADOR
+   La FK con dbo.Usuario se agregará durante la integración
+   cuando DEV 1 confirme la estructura de la tabla Usuario.
+   ============================================================ */
+
+IF OBJECT_ID('dbo.PerfilCoordinador', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PerfilCoordinador
+    (
+        PerfilCoordinadorId INT IDENTITY(1,1) NOT NULL,
+        UsuarioId INT NOT NULL,
+        Nombres NVARCHAR(80) NOT NULL,
+        Apellidos NVARCHAR(100) NOT NULL,
+        Correo NVARCHAR(150) NOT NULL,
+        Telefono NVARCHAR(20) NULL,
+        Rol NVARCHAR(30) NOT NULL
+            CONSTRAINT DF_PerfilCoordinador_Rol
+            DEFAULT ('COORDINADOR'),
+        AreaGestion NVARCHAR(100) NULL,
+        NotificacionesCorreo BIT NOT NULL
+            CONSTRAINT DF_PerfilCoordinador_NotificacionesCorreo
+            DEFAULT (1),
+        NotificacionesSistema BIT NOT NULL
+            CONSTRAINT DF_PerfilCoordinador_NotificacionesSistema
+            DEFAULT (0),
+        FechaCreacion DATETIME2 NOT NULL
+            CONSTRAINT DF_PerfilCoordinador_FechaCreacion
+            DEFAULT (SYSDATETIME()),
+        FechaActualizacion DATETIME2 NOT NULL
+            CONSTRAINT DF_PerfilCoordinador_FechaActualizacion
+            DEFAULT (SYSDATETIME()),
+
+        CONSTRAINT PK_PerfilCoordinador
+            PRIMARY KEY (PerfilCoordinadorId),
+
+        CONSTRAINT UQ_PerfilCoordinador_UsuarioId
+            UNIQUE (UsuarioId),
+
+        CONSTRAINT CK_PerfilCoordinador_Rol
+            CHECK (Rol = 'COORDINADOR')
+    );
+END;
+GO
+
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM dbo.PerfilCoordinador
+    WHERE UsuarioId = 1
+)
+BEGIN
+    INSERT INTO dbo.PerfilCoordinador
+    (
+        UsuarioId,
+        Nombres,
+        Apellidos,
+        Correo,
+        Telefono,
+        Rol,
+        AreaGestion,
+        NotificacionesCorreo,
+        NotificacionesSistema
+    )
+    VALUES
+    (
+        1,
+        N'Coordinador',
+        N'Académico',
+        N'coordinador@santiagoapostol.edu.pe',
+        NULL,
+        N'COORDINADOR',
+        N'Gestión académica',
+        1,
+        0
+    );
+END;
+GO
