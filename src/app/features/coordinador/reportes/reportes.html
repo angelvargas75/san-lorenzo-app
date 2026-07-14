@@ -1,81 +1,493 @@
 <app-page-title titulo="Reportes"></app-page-title>
 
-<div class="section-card">
-  <h5 class="section-subtitle">Filtros</h5>
+<div class="reportes-layout">
+  <section class="section-card">
+    <h5 class="section-subtitle">
+      Generar reporte
+    </h5>
 
-  <form class="report-filter-form">
-    <div class="mb-3">
-      <label class="form-label">Grado</label>
-      <select class="form-select">
-        <option selected>Seleccionar grado</option>
-        <option>1ro de Secundaria</option>
-        <option>2do de Secundaria</option>
-        <option>3ro de Secundaria</option>
-        <option>4to de Secundaria</option>
-        <option>5to de Secundaria</option>
-      </select>
-    </div>
+    @if (mensajeExito) {
+      <div class="alert alert-success">
+        {{ mensajeExito }}
+      </div>
+    }
 
-    <div class="mb-3">
-      <label class="form-label">Docente</label>
-      <select class="form-select">
-        <option selected>Seleccionar docente</option>
-        <option>Prof. Ana Torres</option>
-        <option>Prof. Carlos Ruiz</option>
-        <option>Prof. Laura Gómez</option>
-      </select>
-    </div>
+    @if (mensajeError) {
+      <div class="alert alert-danger">
+        {{ mensajeError }}
+      </div>
+    }
 
-    <div class="mb-4">
-      <label class="form-label">Periodo</label>
-      <select class="form-select">
-        <option selected>Seleccionar periodo</option>
-        <option>Bimestre 1</option>
-        <option>Bimestre 2</option>
-        <option>Bimestre 3</option>
-        <option>Bimestre 4</option>
-      </select>
-    </div>
+    <form
+      class="report-filter-form"
+      [formGroup]="reporteForm"
+      (ngSubmit)="generarReporte()"
+      novalidate
+    >
+      <div class="mb-3">
+        <label
+          for="tipoReporte"
+          class="form-label"
+        >
+          Tipo de reporte
+        </label>
 
-    <button type="button" class="btn-primary-custom">Generar reporte</button>
-  </form>
+        <select
+          id="tipoReporte"
+          class="form-select"
+          formControlName="tipoReporte"
+          [class.is-invalid]="
+            controles.tipoReporte.touched &&
+            controles.tipoReporte.invalid
+          "
+        >
+          <option value="">
+            Seleccionar tipo
+          </option>
 
-  <h5 class="section-subtitle mt-5">Historial de reportes</h5>
+          @for (
+            tipo of tiposReporte;
+            track tipo.value
+          ) {
+            <option [value]="tipo.value">
+              {{ tipo.label }}
+            </option>
+          }
+        </select>
 
-  <div class="table-responsive">
-    <table class="table table-borderless align-middle custom-table">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Grado</th>
-          <th>Docente</th>
-          <th>Periodo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>2026-06-20</td>
-          <td>5to Secundaria</td>
-          <td>Prof. Ana Torres</td>
-          <td>Bimestre 2</td>
-          <td><a href="#" class="action-link">Descargar</a></td>
-        </tr>
-        <tr>
-          <td>2026-06-18</td>
-          <td>4to Secundaria</td>
-          <td>Prof. Carlos Ruiz</td>
-          <td>Bimestre 2</td>
-          <td><a href="#" class="action-link">Descargar</a></td>
-        </tr>
-        <tr>
-          <td>2026-06-15</td>
-          <td>3ro Secundaria</td>
-          <td>Prof. Laura Gómez</td>
-          <td>Bimestre 2</td>
-          <td><a href="#" class="action-link">Descargar</a></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+        @if (
+          controles.tipoReporte.touched &&
+          controles.tipoReporte.invalid
+        ) {
+          <div class="invalid-feedback">
+            Selecciona un tipo de reporte.
+          </div>
+        }
+      </div>
+
+      <div class="filters-grid">
+        <div>
+          <label
+            for="grado"
+            class="form-label"
+          >
+            Grado
+          </label>
+
+          <select
+            id="grado"
+            class="form-select"
+            formControlName="grado"
+          >
+            <option value="">
+              Todos los grados
+            </option>
+
+            @for (grado of grados; track grado) {
+              <option [value]="grado">
+                {{ grado }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label
+            for="seccion"
+            class="form-label"
+          >
+            Sección
+          </label>
+
+          <select
+            id="seccion"
+            class="form-select"
+            formControlName="seccion"
+          >
+            <option value="">
+              Todas las secciones
+            </option>
+
+            @for (
+              seccion of secciones;
+              track seccion
+            ) {
+              <option [value]="seccion">
+                {{ seccion }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label
+            for="docenteId"
+            class="form-label"
+          >
+            Docente
+          </label>
+
+          <select
+            id="docenteId"
+            class="form-select"
+            formControlName="docenteId"
+          >
+            <option value="">
+              Todos los docentes
+            </option>
+
+            @for (
+              docente of docentes;
+              track docente.id
+            ) {
+              <option [value]="docente.id">
+                {{ docente.nombre }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label
+            for="periodo"
+            class="form-label"
+          >
+            Periodo
+          </label>
+
+          <select
+            id="periodo"
+            class="form-select"
+            formControlName="periodo"
+            [class.is-invalid]="
+              controles.periodo.touched &&
+              controles.periodo.invalid
+            "
+          >
+            <option value="">
+              Seleccionar periodo
+            </option>
+
+            @for (
+              periodo of periodos;
+              track periodo
+            ) {
+              <option [value]="periodo">
+                {{ periodo }}
+              </option>
+            }
+          </select>
+
+          @if (
+            controles.periodo.touched &&
+            controles.periodo.invalid
+          ) {
+            <div class="invalid-feedback">
+              Selecciona un periodo.
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn-primary-custom"
+        >
+          Generar reporte
+        </button>
+
+        <button
+          type="button"
+          class="btn-secondary-custom"
+          (click)="limpiarFormulario()"
+        >
+          Limpiar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  @if (reporteSeleccionado) {
+    <section
+      id="detalle-reporte"
+      class="section-card"
+    >
+      <div class="section-header">
+        <div>
+          <h5 class="section-subtitle mb-1">
+            Resultado del reporte
+          </h5>
+
+          <p class="section-description">
+            {{
+              etiquetaTipo(
+                reporteSeleccionado.tipoReporte
+              )
+            }}
+            ·
+            {{ obtenerPeriodo(reporteSeleccionado) }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="btn-primary-custom"
+          (click)="
+            descargarReporte(reporteSeleccionado)
+          "
+        >
+          Descargar CSV
+        </button>
+      </div>
+
+      <div class="report-summary">
+        <div class="summary-item">
+          <span class="summary-label">
+            Registros
+          </span>
+
+          <strong>
+            {{ reporteSeleccionado.resultado.length }}
+          </strong>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">
+            Grado
+          </span>
+
+          <strong>
+            {{ obtenerGrado(reporteSeleccionado) }}
+          </strong>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">
+            Sección
+          </span>
+
+          <strong>
+            {{ obtenerSeccion(reporteSeleccionado) }}
+          </strong>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">
+            Docente
+          </span>
+
+          <strong>
+            {{ obtenerDocente(reporteSeleccionado) }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table custom-table">
+          <thead>
+            <tr>
+              @for (
+                columna of columnasResultado(
+                  reporteSeleccionado
+                );
+                track columna
+              ) {
+                <th>
+                  {{ formatearClave(columna) }}
+                </th>
+              }
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              registro of reporteSeleccionado.resultado;
+              track $index
+            ) {
+              <tr>
+                @for (
+                  columna of columnasResultado(
+                    reporteSeleccionado
+                  );
+                  track columna
+                ) {
+                  <td>
+                    {{
+                      formatearValor(
+                        registro[columna]
+                      )
+                    }}
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <section class="section-card">
+    <h5 class="section-subtitle">
+      Historial de reportes
+    </h5>
+
+    <form
+      class="history-filters"
+      [formGroup]="historialForm"
+    >
+      <div>
+        <label
+          for="filtroTipoReporte"
+          class="form-label"
+        >
+          Tipo
+        </label>
+
+        <select
+          id="filtroTipoReporte"
+          class="form-select"
+          formControlName="tipoReporte"
+        >
+          <option value="">
+            Todos
+          </option>
+
+          @for (
+            tipo of tiposReporte;
+            track tipo.value
+          ) {
+            <option [value]="tipo.value">
+              {{ tipo.label }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label
+          for="filtroPeriodo"
+          class="form-label"
+        >
+          Periodo
+        </label>
+
+        <select
+          id="filtroPeriodo"
+          class="form-select"
+          formControlName="periodo"
+        >
+          <option value="">
+            Todos
+          </option>
+
+          @for (
+            periodo of periodos;
+            track periodo
+          ) {
+            <option [value]="periodo">
+              {{ periodo }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <button
+        type="button"
+        class="btn-secondary-custom filter-button"
+        (click)="limpiarFiltros()"
+      >
+        Limpiar filtros
+      </button>
+    </form>
+
+    @if (reportesFiltrados.length === 0) {
+      <div class="empty-state">
+        No existen reportes generados.
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table custom-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Periodo</th>
+              <th>Grado</th>
+              <th>Registros</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              reporte of reportesFiltrados;
+              track reporte.reporteId
+            ) {
+              <tr>
+                <td>
+                  {{
+                    formatearFecha(
+                      reporte.fechaGeneracion
+                    )
+                  }}
+                </td>
+
+                <td>
+                  <span class="type-badge">
+                    {{
+                      etiquetaTipo(
+                        reporte.tipoReporte
+                      )
+                    }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ obtenerPeriodo(reporte) }}
+                </td>
+
+                <td>
+                  {{ obtenerGrado(reporte) }}
+                </td>
+
+                <td>
+                  {{ reporte.resultado.length }}
+                </td>
+
+                <td>
+                  <div class="table-actions">
+                    <button
+                      type="button"
+                      class="action-link action-button"
+                      (click)="seleccionarReporte(reporte)"
+                    >
+                      Ver
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-link action-button"
+                      (click)="descargarReporte(reporte)"
+                    >
+                      Descargar
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-link action-button delete-link"
+                      (click)="eliminarReporte(reporte)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
 </div>
