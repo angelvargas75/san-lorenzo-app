@@ -1,57 +1,265 @@
-<app-page-title titulo="Configuración del sistema"></app-page-title>
+<app-page-title
+  titulo="Configuración del sistema">
+</app-page-title>
 
 <div class="section-card">
-  <form class="form-wrapper">
-    <h5 class="section-subtitle">Configuración general</h5>
+  <form
+    class="form-wrapper"
+    [formGroup]="configuracionForm"
+    (ngSubmit)="guardarConfiguracion()"
+    novalidate>
+
+    @if (mensajeExito) {
+      <div
+        class="alert alert-success"
+        role="alert">
+        {{ mensajeExito }}
+      </div>
+    }
+
+    @if (mensajeError) {
+      <div
+        class="alert alert-danger"
+        role="alert">
+        {{ mensajeError }}
+      </div>
+    }
+
+    <h5 class="section-subtitle">
+      Configuración general
+    </h5>
 
     <div class="mb-3">
-      <label class="form-label">Nombre del colegio</label>
-      <input type="text" class="form-control" value="IEP Santiago Apóstol">
+      <label
+        for="nombreInstitucion"
+        class="form-label">
+        Nombre del colegio
+      </label>
+
+      <input
+        id="nombreInstitucion"
+        type="text"
+        class="form-control"
+        formControlName="nombreInstitucion"
+        [class.is-invalid]="
+          controles.nombreInstitucion.touched &&
+          controles.nombreInstitucion.invalid
+        ">
+
+      @if (
+        controles.nombreInstitucion.touched &&
+        controles.nombreInstitucion.hasError('required')
+      ) {
+        <div class="invalid-feedback">
+          El nombre del colegio es obligatorio.
+        </div>
+      }
+
+      @if (
+        controles.nombreInstitucion.touched &&
+        controles.nombreInstitucion.hasError('minlength')
+      ) {
+        <div class="invalid-feedback">
+          El nombre debe contener al menos 3 caracteres.
+        </div>
+      }
+
+      @if (
+        controles.nombreInstitucion.touched &&
+        controles.nombreInstitucion.hasError('maxlength')
+      ) {
+        <div class="invalid-feedback">
+          El nombre no puede superar los 150 caracteres.
+        </div>
+      }
     </div>
 
     <div class="mb-3">
-      <label class="form-label">Año académico actual</label>
-      <input type="text" class="form-control" value="2026">
+      <label
+        for="anioAcademico"
+        class="form-label">
+        Año académico actual
+      </label>
+
+      <input
+        id="anioAcademico"
+        type="number"
+        class="form-control"
+        formControlName="anioAcademico"
+        min="2020"
+        max="2100"
+        [class.is-invalid]="
+          controles.anioAcademico.touched &&
+          controles.anioAcademico.invalid
+        ">
+
+      @if (
+        controles.anioAcademico.touched &&
+        controles.anioAcademico.invalid
+      ) {
+        <div class="invalid-feedback">
+          Ingrese un año entre 2020 y 2100.
+        </div>
+      }
     </div>
 
     <div class="mb-4">
-      <label class="form-label">Periodo académico actual</label>
-      <select class="form-select">
-        <option selected>Bimestre 2</option>
-        <option>Bimestre 1</option>
-        <option>Bimestre 3</option>
-        <option>Bimestre 4</option>
+      <label
+        for="periodoAcademico"
+        class="form-label">
+        Periodo académico actual
+      </label>
+
+      <select
+        id="periodoAcademico"
+        class="form-select"
+        formControlName="periodoAcademico"
+        [class.is-invalid]="
+          controles.periodoAcademico.touched &&
+          controles.periodoAcademico.invalid
+        ">
+
+        <option value="">
+          Seleccione un periodo
+        </option>
+
+        <option value="Primer bimestre">
+          Primer bimestre
+        </option>
+
+        <option value="Segundo bimestre">
+          Segundo bimestre
+        </option>
+
+        <option value="Tercer bimestre">
+          Tercer bimestre
+        </option>
+
+        <option value="Cuarto bimestre">
+          Cuarto bimestre
+        </option>
       </select>
+
+      @if (
+        controles.periodoAcademico.touched &&
+        controles.periodoAcademico.invalid
+      ) {
+        <div class="invalid-feedback">
+          Seleccione un periodo académico.
+        </div>
+      }
     </div>
 
-    <h5 class="section-subtitle">Configuración de seguridad</h5>
+    <h5 class="section-subtitle">
+      Configuración de seguridad
+    </h5>
 
     <div class="mb-3">
-      <label class="form-label">Rol</label>
-      <select class="form-select">
-        <option selected>Coordinador académico</option>
-        <option>Administrativo</option>
-        <option>Docente</option>
-      </select>
+      <label
+        for="rol"
+        class="form-label">
+        Rol
+      </label>
+
+      <input
+        id="rol"
+        type="text"
+        class="form-control"
+        value="Coordinador académico"
+        readonly>
     </div>
 
     <div class="mb-4">
-      <label class="form-label">Permisos</label>
-      <input type="text" class="form-control" value="Gestión académica, reportes y comunicados">
+      <label
+        for="permisos"
+        class="form-label">
+        Permisos
+      </label>
+
+      <input
+        id="permisos"
+        type="text"
+        class="form-control"
+        value="Gestión académica, reportes y comunicados"
+        readonly>
+
+      <div class="form-text">
+        Los permisos se administrarán desde el módulo de usuarios.
+      </div>
     </div>
 
-    <h5 class="section-subtitle">Parámetros de asistencia</h5>
+    <h5 class="section-subtitle">
+      Parámetros de asistencia
+    </h5>
 
     <div class="mb-3">
-      <label class="form-label">Umbral de faltas injustificadas</label>
-      <input type="number" class="form-control" value="3">
+      <label
+        for="umbralInasistencias"
+        class="form-label">
+        Umbral de faltas injustificadas
+      </label>
+
+      <input
+        id="umbralInasistencias"
+        type="number"
+        class="form-control"
+        formControlName="umbralInasistencias"
+        min="0"
+        max="100"
+        [class.is-invalid]="
+          controles.umbralInasistencias.touched &&
+          controles.umbralInasistencias.invalid
+        ">
+
+      @if (
+        controles.umbralInasistencias.touched &&
+        controles.umbralInasistencias.invalid
+      ) {
+        <div class="invalid-feedback">
+          Ingrese un valor entre 0 y 100.
+        </div>
+      }
     </div>
 
     <div class="mb-4">
-      <label class="form-label">Tolerancia de tardanza en minutos</label>
-      <input type="number" class="form-control" value="10">
+      <label
+        for="toleranciaMinutos"
+        class="form-label">
+        Tolerancia de tardanza en minutos
+      </label>
+
+      <input
+        id="toleranciaMinutos"
+        type="number"
+        class="form-control"
+        formControlName="toleranciaMinutos"
+        min="0"
+        max="120"
+        [class.is-invalid]="
+          controles.toleranciaMinutos.touched &&
+          controles.toleranciaMinutos.invalid
+        ">
+
+      @if (
+        controles.toleranciaMinutos.touched &&
+        controles.toleranciaMinutos.invalid
+      ) {
+        <div class="invalid-feedback">
+          Ingrese un valor entre 0 y 120 minutos.
+        </div>
+      }
     </div>
 
-    <button type="button" class="btn-primary-custom">Guardar cambios</button>
+    <button
+      type="submit"
+      class="btn-primary-custom"
+      [disabled]="guardando">
+
+      @if (guardando) {
+        Guardando...
+      } @else {
+        Guardar cambios
+      }
+    </button>
   </form>
 </div>

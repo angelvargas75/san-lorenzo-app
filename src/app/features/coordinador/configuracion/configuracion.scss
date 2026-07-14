@@ -83,6 +83,31 @@
   text-decoration: underline;
 }
 
+.btn-primary-custom:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.form-control[readonly] {
+  background-color: #e9ecef;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.alert {
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.form-text {
+  color: #6b7280;
+  font-size: 0.82rem;
+}
+
+.invalid-feedback {
+  font-size: 0.82rem;
+}
+
 @media (max-width: 768px) {
   .section-card,
   .form-wrapper,
