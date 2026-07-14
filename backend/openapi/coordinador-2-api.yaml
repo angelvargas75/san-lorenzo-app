@@ -1,0 +1,973 @@
+openapi: 3.0.3
+
+info:
+  title: API de Gestión Escolar - Coordinador Parte 2
+  description: >
+    Servicios de reportes, comunicados, configuración institucional
+    y perfil del coordinador para la IEP Santiago Apóstol.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Entorno local temporal
+
+  - url: https://REEMPLAZAR.execute-api.us-east-1.amazonaws.com/dev
+    description: AWS API Gateway
+
+tags:
+  - name: Configuracion
+    description: Gestión de parámetros institucionales
+
+  - name: Perfil
+    description: Gestión del perfil del coordinador
+
+  - name: Comunicados
+    description: Gestión de comunicados institucionales
+
+  - name: Reportes
+    description: Generación y consulta de reportes
+
+paths:
+
+  /configuracion:
+
+    get:
+      tags:
+        - Configuracion
+      summary: Obtener la configuración institucional
+      operationId: obtenerConfiguracion
+
+      responses:
+
+        "200":
+          description: Configuración obtenida correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfiguracionResponse"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+    put:
+      tags:
+        - Configuracion
+      summary: Actualizar la configuración institucional
+      operationId: actualizarConfiguracion
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActualizarConfiguracionRequest"
+
+      responses:
+
+        "200":
+          description: Configuración actualizada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfiguracionResponse"
+
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+
+        "404":
+          $ref: "#/components/responses/RecursoNoEncontrado"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+  /coordinadores/{id}/perfil:
+
+    parameters:
+
+      - name: id
+        in: path
+        required: true
+        description: Identificador del coordinador
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
+
+    get:
+      tags:
+        - Perfil
+      summary: Obtener el perfil del coordinador
+      operationId: obtenerPerfilCoordinador
+
+      responses:
+
+        "200":
+          description: Perfil obtenido correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerfilResponse"
+
+        "404":
+          $ref: "#/components/responses/RecursoNoEncontrado"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+    put:
+      tags:
+        - Perfil
+      summary: Actualizar el perfil del coordinador
+      operationId: actualizarPerfilCoordinador
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActualizarPerfilRequest"
+
+      responses:
+
+        "200":
+          description: Perfil actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerfilResponse"
+
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+
+        "404":
+          $ref: "#/components/responses/RecursoNoEncontrado"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+  /comunicados:
+
+    get:
+      tags:
+        - Comunicados
+      summary: Listar comunicados
+      operationId: listarComunicados
+
+      parameters:
+
+        - name: estado
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - BORRADOR
+              - PROGRAMADO
+              - ENVIADO
+              - CANCELADO
+
+        - name: rol
+          in: query
+          required: false
+          schema:
+            type: string
+
+        - name: grado
+          in: query
+          required: false
+          schema:
+            type: string
+
+        - name: seccion
+          in: query
+          required: false
+          schema:
+            type: string
+
+      responses:
+
+        "200":
+          description: Comunicados obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComunicadosResponse"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+    post:
+      tags:
+        - Comunicados
+      summary: Crear un comunicado
+      operationId: crearComunicado
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrearComunicadoRequest"
+
+      responses:
+
+        "201":
+          description: Comunicado creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComunicadoResponse"
+
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+  /comunicados/{id}:
+
+    parameters:
+
+      - name: id
+        in: path
+        required: true
+        description: Identificador del comunicado
+        schema:
+          type: integer
+          minimum: 1
+          example: 10
+
+    put:
+      tags:
+        - Comunicados
+      summary: Actualizar un comunicado
+      operationId: actualizarComunicado
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActualizarComunicadoRequest"
+
+      responses:
+
+        "200":
+          description: Comunicado actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComunicadoResponse"
+
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+
+        "404":
+          $ref: "#/components/responses/RecursoNoEncontrado"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+  /reportes:
+
+    get:
+      tags:
+        - Reportes
+      summary: Listar el historial de reportes
+      operationId: listarReportes
+
+      parameters:
+
+        - name: tipoReporte
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ASISTENCIA
+              - CALIFICACIONES
+              - USUARIOS
+
+        - name: periodo
+          in: query
+          required: false
+          schema:
+            type: string
+
+      responses:
+
+        "200":
+          description: Reportes obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportesResponse"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+  /reportes/generar:
+
+    post:
+      tags:
+        - Reportes
+      summary: Generar un reporte
+      operationId: generarReporte
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerarReporteRequest"
+
+      responses:
+
+        "201":
+          description: Reporte generado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReporteResponse"
+
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+  /reportes/{id}:
+
+    parameters:
+
+      - name: id
+        in: path
+        required: true
+        description: Identificador del reporte
+        schema:
+          type: integer
+          minimum: 1
+          example: 7
+
+    get:
+      tags:
+        - Reportes
+      summary: Obtener un reporte por su identificador
+      operationId: obtenerReportePorId
+
+      responses:
+
+        "200":
+          description: Reporte obtenido correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReporteResponse"
+
+        "404":
+          $ref: "#/components/responses/RecursoNoEncontrado"
+
+        "500":
+          $ref: "#/components/responses/ErrorInterno"
+
+components:
+
+  responses:
+
+    SolicitudInvalida:
+      description: Los datos enviados no son válidos
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    RecursoNoEncontrado:
+      description: El recurso solicitado no existe
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ErrorInterno:
+      description: Ocurrió un error interno
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+
+    ConfiguracionInstitucional:
+      type: object
+
+      required:
+        - configuracionId
+        - nombreInstitucion
+        - anioAcademico
+        - periodoAcademico
+        - toleranciaMinutos
+        - umbralInasistencias
+
+      properties:
+
+        configuracionId:
+          type: integer
+          example: 1
+
+        nombreInstitucion:
+          type: string
+          example: IEP Santiago Apóstol
+
+        anioAcademico:
+          type: integer
+          minimum: 2020
+          maximum: 2100
+          example: 2026
+
+        periodoAcademico:
+          type: string
+          example: Segundo bimestre
+
+        toleranciaMinutos:
+          type: integer
+          minimum: 0
+          example: 10
+
+        umbralInasistencias:
+          type: integer
+          minimum: 0
+          example: 3
+
+        fechaActualizacion:
+          type: string
+          format: date-time
+          example: "2026-07-14T00:00:00Z"
+
+    ActualizarConfiguracionRequest:
+      type: object
+
+      required:
+        - nombreInstitucion
+        - anioAcademico
+        - periodoAcademico
+        - toleranciaMinutos
+        - umbralInasistencias
+
+      properties:
+
+        nombreInstitucion:
+          type: string
+          minLength: 3
+          maxLength: 150
+          example: IEP Santiago Apóstol
+
+        anioAcademico:
+          type: integer
+          minimum: 2020
+          maximum: 2100
+          example: 2026
+
+        periodoAcademico:
+          type: string
+          minLength: 2
+          maxLength: 50
+          example: Segundo bimestre
+
+        toleranciaMinutos:
+          type: integer
+          minimum: 0
+          maximum: 120
+          example: 10
+
+        umbralInasistencias:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 3
+
+    PerfilCoordinador:
+      type: object
+
+      required:
+        - usuarioId
+        - nombres
+        - apellidos
+        - correo
+        - rol
+
+      properties:
+
+        usuarioId:
+          type: integer
+          example: 5
+
+        nombres:
+          type: string
+          example: Andre
+
+        apellidos:
+          type: string
+          example: Lauda
+
+        correo:
+          type: string
+          format: email
+          example: coordinador@santiagoapostol.edu.pe
+
+        telefono:
+          type: string
+          nullable: true
+          example: "999888777"
+
+        rol:
+          type: string
+          example: COORDINADOR
+
+        areaGestion:
+          type: string
+          nullable: true
+          example: Coordinación académica
+
+        notificacionesCorreo:
+          type: boolean
+          example: true
+
+        notificacionesSistema:
+          type: boolean
+          example: true
+
+    ActualizarPerfilRequest:
+      type: object
+
+      required:
+        - nombres
+        - apellidos
+        - correo
+
+      properties:
+
+        nombres:
+          type: string
+          minLength: 2
+          maxLength: 80
+          example: Andre
+
+        apellidos:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Lauda
+
+        correo:
+          type: string
+          format: email
+          example: coordinador@santiagoapostol.edu.pe
+
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 20
+          example: "999888777"
+
+        areaGestion:
+          type: string
+          nullable: true
+          maxLength: 100
+          example: Coordinación académica
+
+        notificacionesCorreo:
+          type: boolean
+          example: true
+
+        notificacionesSistema:
+          type: boolean
+          example: true
+
+    DestinatarioComunicado:
+      type: object
+
+      properties:
+
+        rol:
+          type: string
+          nullable: true
+          example: ALUMNO
+
+        grado:
+          type: string
+          nullable: true
+          example: Quinto
+
+        seccion:
+          type: string
+          nullable: true
+          example: A
+
+    Comunicado:
+      type: object
+
+      required:
+        - comunicadoId
+        - titulo
+        - contenido
+        - estado
+        - creadoPorUsuarioId
+        - fechaCreacion
+        - destinatarios
+
+      properties:
+
+        comunicadoId:
+          type: integer
+          example: 10
+
+        titulo:
+          type: string
+          example: Reunión de padres
+
+        contenido:
+          type: string
+          example: La reunión se realizará el viernes a las 5:00 p. m.
+
+        fechaProgramada:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-07-20T22:00:00Z"
+
+        estado:
+          type: string
+          enum:
+            - BORRADOR
+            - PROGRAMADO
+            - ENVIADO
+            - CANCELADO
+          example: PROGRAMADO
+
+        creadoPorUsuarioId:
+          type: integer
+          example: 5
+
+        fechaCreacion:
+          type: string
+          format: date-time
+          example: "2026-07-14T00:00:00Z"
+
+        destinatarios:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/DestinatarioComunicado"
+
+    CrearComunicadoRequest:
+      type: object
+
+      required:
+        - titulo
+        - contenido
+        - estado
+        - creadoPorUsuarioId
+        - destinatarios
+
+      properties:
+
+        titulo:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: Reunión de padres
+
+        contenido:
+          type: string
+          minLength: 5
+          example: La reunión se realizará el viernes a las 5:00 p. m.
+
+        fechaProgramada:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-07-20T22:00:00Z"
+
+        estado:
+          type: string
+          enum:
+            - BORRADOR
+            - PROGRAMADO
+            - ENVIADO
+          example: PROGRAMADO
+
+        creadoPorUsuarioId:
+          type: integer
+          minimum: 1
+          example: 5
+
+        destinatarios:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/DestinatarioComunicado"
+
+    ActualizarComunicadoRequest:
+      type: object
+
+      required:
+        - titulo
+        - contenido
+        - estado
+        - destinatarios
+
+      properties:
+
+        titulo:
+          type: string
+          minLength: 3
+          maxLength: 200
+          example: Reunión de padres actualizada
+
+        contenido:
+          type: string
+          minLength: 5
+          example: La reunión fue reprogramada.
+
+        fechaProgramada:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-07-21T22:00:00Z"
+
+        estado:
+          type: string
+          enum:
+            - BORRADOR
+            - PROGRAMADO
+            - ENVIADO
+            - CANCELADO
+          example: PROGRAMADO
+
+        destinatarios:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/DestinatarioComunicado"
+
+    ReporteResumen:
+      type: object
+
+      required:
+        - reporteId
+        - tipoReporte
+        - generadoPorUsuarioId
+        - fechaGeneracion
+
+      properties:
+
+        reporteId:
+          type: integer
+          example: 7
+
+        tipoReporte:
+          type: string
+          enum:
+            - ASISTENCIA
+            - CALIFICACIONES
+            - USUARIOS
+          example: ASISTENCIA
+
+        generadoPorUsuarioId:
+          type: integer
+          example: 5
+
+        fechaGeneracion:
+          type: string
+          format: date-time
+          example: "2026-07-14T00:00:00Z"
+
+    GenerarReporteRequest:
+      type: object
+
+      required:
+        - tipoReporte
+        - periodo
+        - generadoPorUsuarioId
+
+      properties:
+
+        tipoReporte:
+          type: string
+          enum:
+            - ASISTENCIA
+            - CALIFICACIONES
+            - USUARIOS
+          example: ASISTENCIA
+
+        grado:
+          type: string
+          nullable: true
+          example: Quinto
+
+        seccion:
+          type: string
+          nullable: true
+          example: A
+
+        docenteId:
+          type: integer
+          nullable: true
+          example: 8
+
+        periodo:
+          type: string
+          example: Segundo bimestre
+
+        generadoPorUsuarioId:
+          type: integer
+          minimum: 1
+          example: 5
+
+    ReporteDetalle:
+      allOf:
+
+        - $ref: "#/components/schemas/ReporteResumen"
+
+        - type: object
+
+          properties:
+
+            filtros:
+              type: object
+              additionalProperties: true
+              example:
+                grado: Quinto
+                seccion: A
+                periodo: Segundo bimestre
+
+            resultado:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+              example:
+                - estudiante: Ana Torres
+                  porcentajeAsistencia: 94
+
+                - estudiante: Luis Ramos
+                  porcentajeAsistencia: 89
+
+    ConfiguracionResponse:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+          example: true
+
+        message:
+          type: string
+          example: Configuración obtenida correctamente
+
+        data:
+          $ref: "#/components/schemas/ConfiguracionInstitucional"
+
+    PerfilResponse:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+          example: true
+
+        message:
+          type: string
+          example: Perfil obtenido correctamente
+
+        data:
+          $ref: "#/components/schemas/PerfilCoordinador"
+
+    ComunicadoResponse:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+          example: true
+
+        message:
+          type: string
+          example: Comunicado creado correctamente
+
+        data:
+          $ref: "#/components/schemas/Comunicado"
+
+    ComunicadosResponse:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+          example: true
+
+        message:
+          type: string
+          example: Comunicados obtenidos correctamente
+
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Comunicado"
+
+    ReportesResponse:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+          example: true
+
+        message:
+          type: string
+          example: Reportes obtenidos correctamente
+
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReporteResumen"
+
+    ReporteResponse:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+          example: true
+
+        message:
+          type: string
+          example: Reporte generado correctamente
+
+        data:
+          $ref: "#/components/schemas/ReporteDetalle"
+
+    ErrorResponse:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+          example: false
+
+        message:
+          type: string
+          example: No se pudo completar la operación
+
+        data:
+          type: object
+          nullable: true
+          additionalProperties: true
+          example: null
