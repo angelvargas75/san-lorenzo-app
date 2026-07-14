@@ -1,0 +1,20 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "PUT /comunicados/{id}",
+  "rawPath": "/comunicados/1",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "pathParameters": {
+    "id": "1"
+  },
+  "requestContext": {
+    "http": {
+      "method": "PUT",
+      "path": "/comunicados/1"
+    }
+  },
+  "body": "{\"titulo\":\"Reunión de padres actualizada\",\"contenido\":\"La reunión fue reprogramada para una nueva fecha.\",\"fechaProgramada\":\"2026-08-02T22:00:00Z\",\"estado\":\"PROGRAMADO\",\"destinatarios\":[{\"rol\":\"PADRE_FAMILIA\",\"grado\":\"Quinto de primaria\",\"seccion\":\"A\"}]}",
+  "isBase64Encoded": false
+}

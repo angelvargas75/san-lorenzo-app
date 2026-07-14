@@ -1,0 +1,17 @@
+﻿{
+  "version": "2.0",
+  "routeKey": "POST /comunicados",
+  "rawPath": "/comunicados",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/comunicados"
+    }
+  },
+  "body": "{\"titulo\":\"Reunión de padres de familia\",\"contenido\":\"La reunión se realizará el próximo viernes a las 5:00 p. m.\",\"fechaProgramada\":\"2026-08-01T22:00:00Z\",\"estado\":\"PROGRAMADO\",\"creadoPorUsuarioId\":1,\"destinatarios\":[{\"rol\":\"PADRE_FAMILIA\",\"grado\":\"Quinto de primaria\",\"seccion\":\"A\"}]}",
+  "isBase64Encoded": false
+}
