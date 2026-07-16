@@ -1,12 +1,15 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
+import { DocenteApi } from '../docente-api';
 
 interface ClaseHorario {
+  id: number;
   icon: string;
   nombre: string;
   horario: string;
   datetimeInicio: string;
   datetimeFin: string;
+  dayOfWeek: number;
 }
 
 // Genera la grilla del calendario para cualquier mes/año
@@ -31,17 +34,35 @@ function generarCalendario(año: number, mes: number): (number | null)[][] {
   templateUrl: './horarios.html',
   styleUrl: './horarios.scss',
 })
-export class Horarios {
+export class Horarios implements OnInit {
+  private readonly api = inject(DocenteApi);
   private readonly NOMBRES_DIA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   private readonly NOMBRES_MES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-  private readonly clasesMock: ClaseHorario[] = [
-    { icon: 'bi-book',       nombre: 'Matemáticas', horario: '8:00 AM - 9:00 AM',   datetimeInicio: '08:00', datetimeFin: '09:00' },
-    { icon: 'bi-eyedropper', nombre: 'Ciencias',    horario: '9:00 AM - 10:00 AM',  datetimeInicio: '09:00', datetimeFin: '10:00' },
-    { icon: 'bi-map',        nombre: 'Historia',    horario: '10:00 AM - 11:00 AM', datetimeInicio: '10:00', datetimeFin: '11:00' },
-    { icon: 'bi-cup-hot',    nombre: 'Almuerzo',    horario: '11:00 AM - 12:00 PM', datetimeInicio: '11:00', datetimeFin: '12:00' },
-    { icon: 'bi-globe',      nombre: 'Inglés',      horario: '12:00 PM - 1:00 PM',  datetimeInicio: '12:00', datetimeFin: '13:00' },
-  ];
+  private readonly clasesList = signal<ClaseHorario[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal(false);
+
+  ngOnInit(): void {
+    this.api.getSchedule().subscribe({
+      next: (res) => {
+        this.clasesList.set(res.classes.map(c => ({
+          id: c.id,
+          icon: c.icon || 'bi-book',
+          nombre: c.name,
+          horario: `${c.startTime} - ${c.endTime}`,
+          datetimeInicio: c.startTime,
+          datetimeFin: c.endTime,
+          dayOfWeek: c.dayOfWeek
+        })));
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      }
+    });
+  }
 
   private readonly hoy = new Date();
 
@@ -83,7 +104,7 @@ export class Horarios {
     if (dia === null) return [];
     const { mes, año } = this.mesActual();
     const diaSemana = new Date(año, mes, dia).getDay();
-    return (diaSemana === 0 || diaSemana === 6) ? [] : this.clasesMock;
+    return this.clasesList().filter(c => c.dayOfWeek === diaSemana);
   });
 
   seleccionarDia(dia: number): void {

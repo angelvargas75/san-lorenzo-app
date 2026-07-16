@@ -1,5 +1,6 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, effect, signal } from '@angular/core';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
+import { DocenteApi } from '../docente-api';
 
 interface RegistroNota {
   id: number;
@@ -7,7 +8,7 @@ interface RegistroNota {
   curso: string;
   grado: string;
   seccion: string;
-  notas: readonly [number, number, number, number, number];
+  notas: [number, number, number, number, number];
 }
 
 @Component({
@@ -16,15 +17,8 @@ interface RegistroNota {
   templateUrl: './notas.html',
   styleUrl: './notas.scss',
 })
-export class Notas {
-  private readonly registrosMock: RegistroNota[] = [
-    { id: 1, nombre: 'Carlos Mendoza',  curso: 'Álgebra', grado: '5to', seccion: 'A', notas: [15, 16, 14, 17, 17] },
-    { id: 2, nombre: 'Sofia Ramirez',   curso: 'Álgebra', grado: '5to', seccion: 'A', notas: [18, 19, 17, 18, 18] },
-    { id: 3, nombre: 'Diego Torres',    curso: 'Álgebra', grado: '5to', seccion: 'A', notas: [12, 13, 11, 14, 14] },
-    { id: 4, nombre: 'Ana Rodriguez',   curso: 'Álgebra', grado: '5to', seccion: 'A', notas: [16, 17, 15, 16, 16] },
-    { id: 5, nombre: 'Luis Castro',     curso: 'Álgebra', grado: '5to', seccion: 'A', notas: [14, 15, 13, 16, 16] },
-    { id: 6, nombre: 'Maria Lopez',     curso: 'Álgebra', grado: '5to', seccion: 'A', notas: [17, 18, 16, 17, 17] },
-  ];
+export class Notas implements OnInit {
+  private readonly api = inject(DocenteApi);
 
   readonly cursos   = ['Álgebra', 'Matemáticas', 'Física', 'Historia'] as const;
   readonly grados   = ['5to', '4to', '3ro'] as const;
@@ -36,13 +30,42 @@ export class Notas {
   readonly filtroSeccion = signal('A');
   readonly filtroPeriodo = signal('1er Bimestre');
 
-  readonly registrosFiltrados = computed(() =>
-    this.registrosMock.filter(r =>
-      r.curso   === this.filtroCurso()   &&
-      r.grado   === this.filtroGrado()   &&
-      r.seccion === this.filtroSeccion()
-    )
-  );
+  readonly registrosFiltrados = signal<RegistroNota[]>([]);
+  readonly loading = signal(false);
+  readonly error = signal(false);
+
+  constructor() {
+    effect(() => {
+      const course = this.filtroCurso();
+      const gradeLevel = this.filtroGrado();
+      const section = this.filtroSeccion();
+      const term = this.filtroPeriodo();
+
+      if (course && gradeLevel && section && term) {
+        this.loading.set(true);
+        this.api.getGrades({ course, gradeLevel, section, term }).subscribe({
+          next: (res) => {
+            this.registrosFiltrados.set(res.entries.map(e => ({
+              id: e.studentId,
+              nombre: e.name,
+              curso: res.course,
+              grado: res.gradeLevel,
+              seccion: res.section,
+              notas: [e.score1, e.score2, e.score3, e.score4, e.score5]
+            })));
+            this.loading.set(false);
+          },
+          error: () => {
+            this.error.set(true);
+            this.registrosFiltrados.set([]);
+            this.loading.set(false);
+          }
+        });
+      }
+    });
+  }
+
+  ngOnInit(): void {}
 
   getPromedio(notas: readonly number[]): number {
     const sum = notas.reduce((acc, n) => acc + n, 0);

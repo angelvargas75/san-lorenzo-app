@@ -1,17 +1,26 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { Auth } from '../services/auth';
+import { Auth, Role } from '../services/auth';
 
-export const authGuard: CanActivateFn = (route, state) => {
+/** Exige sesión activa. */
+export const authGuard: CanActivateFn = () => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  // Si hay sesión activa, deja pasar
-  if (auth.isLoggedIn()) {
-    return true;
-  }
+  return auth.isLoggedIn() ? true : router.createUrlTree(['/login']);
+};
 
-  // Si NO hay sesión, redirige al login y bloquea el acceso
-  router.navigate(['/login']);
-  return false;
+/** Exige sesión activa Y uno de los roles indicados; si no, manda a la home del rol. */
+export const roleGuard = (roles: Role[]): CanActivateFn => {
+  return () => {
+    const auth = inject(Auth);
+    const router = inject(Router);
+
+    if (!auth.isLoggedIn()) {
+      return router.createUrlTree(['/login']);
+    }
+
+    const role = auth.role();
+    return role && roles.includes(role) ? true : router.createUrlTree([auth.homePath()]);
+  };
 };

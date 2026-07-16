@@ -20,8 +20,11 @@
             placeholder="Ingrese su correo institucional"
             [class.is-invalid]="usuario?.invalid && usuario?.touched"
           >
-          @if (usuario?.invalid && usuario?.touched) {
-            <div class="invalid-feedback">El usuario es obligatorio.</div>
+          @if (usuario?.errors?.['required'] && usuario?.touched) {
+            <div class="invalid-feedback">El correo es obligatorio.</div>
+          }
+          @if (usuario?.errors?.['email'] && usuario?.touched) {
+            <div class="invalid-feedback">Ingrese un correo válido.</div>
           }
         </div>
 
@@ -43,7 +46,7 @@
             <div class="invalid-feedback">La contraseña es obligatoria.</div>
           }
           @if (password?.errors?.['minlength'] && password?.touched) {
-            <div class="invalid-feedback">La contraseña debe tener al menos 4 caracteres.</div>
+            <div class="invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
           }
         </div>
 
@@ -58,11 +61,13 @@
         </div>
 
         <!-- Mensaje de error general -->
-        @if (errorMsg) {
-          <div class="alert alert-danger py-2 small">{{ errorMsg }}</div>
+        @if (errorMsg()) {
+          <div class="alert alert-danger py-2 small">{{ errorMsg() }}</div>
         }
 
-        <button type="submit" class="btn btn-login">Ingresar</button>
+        <button type="submit" class="btn btn-login" [disabled]="loading()">
+          {{ loading() ? 'Ingresando…' : 'Ingresar' }}
+        </button>
       </form>
 
       <div class="text-center mt-4 text-muted small">

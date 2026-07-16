@@ -9,7 +9,7 @@ import { Tareas } from './features/alumno/tareas/tareas';
 import { Horarios } from './features/alumno/horarios/horarios';
 import { Asistencia } from './features/alumno/asistencia/asistencia';
 import { Perfil as PerfilAlumno } from './features/alumno/perfil/perfil';
-import { authGuard } from './core/guards/auth-guard';
+import { roleGuard } from './core/guards/auth-guard';
 import { Reportes } from './features/coordinador/reportes/reportes';
 import { Comunicados } from './features/coordinador/comunicados/comunicados';
 import { Configuracion } from './features/coordinador/configuracion/configuracion';
@@ -28,7 +28,7 @@ export const routes: Routes = [
   {
     path: 'alumno',
     component: AlumnoLayout,
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['Student'])],
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       { path: 'inicio', component: Inicio },
@@ -44,7 +44,7 @@ export const routes: Routes = [
   {
     path: 'docente',
     component: DocenteLayout,
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['Teacher'])],
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       {
@@ -82,7 +82,7 @@ export const routes: Routes = [
   {
     path: 'coordinador',
     component: CoordinadorLayout,
-    canActivate: [authGuard],
+    canActivate: [roleGuard(['Coordinator'])],
     children: [
        { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       { path: 'inicio', component: InicioCoordinador },
