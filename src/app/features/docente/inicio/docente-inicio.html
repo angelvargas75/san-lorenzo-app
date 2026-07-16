@@ -4,20 +4,20 @@
   <div class="col-sm-4">
     <app-stat-card
       label="Cursos Asignados"
-      [value]="cursos.length.toString()"
+      [value]="cursos().length.toString()"
     ></app-stat-card>
   </div>
   <div class="col-sm-4">
     <app-stat-card
       label="Total Alumnos"
-      [value]="totalAlumnos.toString()"
+      [value]="totalAlumnos().toString()"
     ></app-stat-card>
   </div>
   <div class="col-sm-4">
     <app-stat-card
       label="Pendientes"
-      [value]="pendientes.toString()"
-      [trend]="'+' + pendientes"
+      [value]="pendientes().toString()"
+      [trend]="'+' + pendientes()"
       [trendUp]="false"
     ></app-stat-card>
   </div>
@@ -34,7 +34,7 @@
   <div class="alert-body">
     <h5 class="fw-bold">Registros Pendientes</h5>
     <p class="text-muted small alert-desc">
-      Tienes {{ pendientes }} registros de asistencia pendientes.
+      Tienes {{ pendientes() }} registros de asistencia pendientes.
       Completa ahora para mantener tus registros actualizados.
     </p>
     <a class="btn-secondary-action mt-2" routerLink="/docente/asistencia">Completar Ahora</a>
@@ -57,7 +57,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (curso of cursos; track curso.id) {
+      @for (curso of cursos(); track curso.id) {
         <tr>
           <td class="fw-bold">{{ curso.nombre }}</td>
           <td class="text-primary">{{ curso.grado }}</td>

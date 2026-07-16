@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
 import { StatCard } from '../../../shared/components/stat-card/stat-card';
+import { DocenteApi } from '../docente-api';
 
 interface CursoAsignado {
   id: number;
@@ -17,14 +18,35 @@ interface CursoAsignado {
   templateUrl: './docente-inicio.html',
   styleUrl: './docente-inicio.scss',
 })
-export class DocenteInicio {
-  readonly pendientes = 3;
-  readonly totalAlumnos = 120;
+export class DocenteInicio implements OnInit {
+  private readonly api = inject(DocenteApi);
 
-  readonly cursos: CursoAsignado[] = [
-    { id: 1, nombre: 'Matemáticas',        grado: '5to', seccion: 'A', horario: 'Lunes y Miércoles 8:00 AM - 9:30 AM' },
-    { id: 2, nombre: 'Ciencias Naturales', grado: '4to', seccion: 'B', horario: 'Martes y Jueves 10:00 AM - 11:30 AM' },
-    { id: 3, nombre: 'Ciencias Naturales', grado: '4to', seccion: 'C', horario: 'Martes y Jueves 10:00 AM - 11:30 AM' },
-    { id: 4, nombre: 'Historia',            grado: '3ro', seccion: 'C', horario: 'Viernes 1:00 PM - 2:30 PM' },
-  ];
+  readonly pendientes = signal(0);
+  readonly totalAlumnos = signal(0);
+  readonly cursos = signal<CursoAsignado[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal(false);
+
+  ngOnInit(): void {
+    this.api.getDashboard().subscribe({
+      next: (d) => {
+        this.pendientes.set(d.pending);
+        this.totalAlumnos.set(d.totalStudents);
+        this.cursos.set(
+          d.courses.map((c) => ({
+            id: c.id,
+            nombre: c.name,
+            grado: c.gradeLevel,
+            seccion: c.section,
+            horario: c.schedule ?? '—',
+          })),
+        );
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      },
+    });
+  }
 }

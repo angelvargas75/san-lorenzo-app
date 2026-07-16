@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 
@@ -10,23 +10,26 @@ import { Auth } from '../../../core/services/auth';
   styleUrl: './login.scss',
 })
 export class Login {
-  loginForm: FormGroup;
-  errorMsg: string = '';
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly auth = inject(Auth);
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private auth: Auth
-  ) {
-    this.loginForm = this.fb.group({
-      usuario: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(4)]],
-      remember: [false],
-    });
+  readonly errorMsg = signal('');
+  readonly loading = signal(false);
+
+  readonly loginForm = this.fb.group({
+    usuario: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    remember: [false],
+  });
+
+  get usuario() {
+    return this.loginForm.get('usuario');
   }
 
-  get usuario() { return this.loginForm.get('usuario'); }
-  get password() { return this.loginForm.get('password'); }
+  get password() {
+    return this.loginForm.get('password');
+  }
 
   login(): void {
     if (this.loginForm.invalid) {
@@ -34,19 +37,23 @@ export class Login {
       return;
     }
 
-    const user = this.loginForm.value.usuario.trim().toLowerCase();
+    const { usuario, password } = this.loginForm.getRawValue();
+    this.errorMsg.set('');
+    this.loading.set(true);
 
-    if (user.includes('docente')) {
-      this.auth.login('docente');
-      this.router.navigate(['/docente']);
-    } else if (user.includes('alumno')) {
-      this.auth.login('alumno');
-      this.router.navigate(['/alumno']);
-    } else if (user.includes('coordinador')) {
-      this.auth.login('coordinador');
-      this.router.navigate(['/coordinador']);
-    } else {
-      this.errorMsg = "Para probar, use usuarios que contengan: 'docente', 'alumno' o 'coordinador'";
-    }
+    this.auth.login(usuario!, password!).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigateByUrl(this.auth.homePath());
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMsg.set(
+          err.status === 401
+            ? 'El correo o la contraseña no son correctos.'
+            : 'No se pudo iniciar sesión. Intenta de nuevo.',
+        );
+      },
+    });
   }
 }
