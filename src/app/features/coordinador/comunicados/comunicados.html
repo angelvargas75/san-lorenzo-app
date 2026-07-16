@@ -1,438 +1,419 @@
-<app-page-title titulo="Comunicados"></app-page-title>
+<app-page-title titulo="Gestión de comunicados"></app-page-title>
 
-<div class="comunicados-layout">
-  <div class="section-card">
-    <h5 class="section-subtitle">
-      {{
-        comunicadoEditandoId !== null
-          ? 'Editar comunicado'
-          : 'Crear comunicado'
-      }}
-    </h5>
+<div class="section-card mb-4">
 
-    <form
-      class="form-wrapper"
-      [formGroup]="comunicadoForm"
-      (ngSubmit)="guardarComunicado()"
-      novalidate
-    >
-      @if (mensajeExito) {
-        <div class="alert alert-success">
-          {{ mensajeExito }}
+  <h5 class="section-subtitle">
+    {{ editingId === null
+      ? 'Nuevo comunicado'
+      : 'Editar comunicado'
+    }}
+  </h5>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+    </div>
+  }
+
+  <form
+    [formGroup]="announcementForm"
+    (ngSubmit)="saveAnnouncement()"
+  >
+    <div class="mb-3">
+      <label for="title" class="form-label">
+        Título
+      </label>
+
+      <input
+        id="title"
+        type="text"
+        class="form-control"
+        formControlName="title"
+        maxlength="200"
+        [class.is-invalid]="
+          announcementForm.controls.title.invalid &&
+          announcementForm.controls.title.touched
+        "
+      >
+
+      @if (
+        announcementForm.controls.title.invalid &&
+        announcementForm.controls.title.touched
+      ) {
+        <div class="invalid-feedback">
+          El título debe tener entre 2 y 200 caracteres.
         </div>
       }
+    </div>
 
-      @if (mensajeError) {
-        <div class="alert alert-danger">
-          {{ mensajeError }}
+    <div class="mb-3">
+      <label for="content" class="form-label">
+        Contenido
+      </label>
+
+      <textarea
+        id="content"
+        class="form-control"
+        formControlName="content"
+        rows="5"
+        [class.is-invalid]="
+          announcementForm.controls.content.invalid &&
+          announcementForm.controls.content.touched
+        "
+      ></textarea>
+
+      @if (
+        announcementForm.controls.content.invalid &&
+        announcementForm.controls.content.touched
+      ) {
+        <div class="invalid-feedback">
+          Ingrese el contenido del comunicado.
         </div>
       }
+    </div>
 
-      <div class="mb-3">
-        <label
-          for="titulo"
-          class="form-label"
-        >
-          Título del comunicado
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="status" class="form-label">
+          Estado
         </label>
 
-        <input
-          id="titulo"
-          type="text"
-          class="form-control"
-          formControlName="titulo"
-          placeholder="Ejemplo: Reunión de padres de familia"
-          [class.is-invalid]="
-            controles.titulo.touched &&
-            controles.titulo.invalid
-          "
+        <select
+          id="status"
+          class="form-select"
+          formControlName="status"
         >
-
-        @if (
-          controles.titulo.touched &&
-          controles.titulo.invalid
-        ) {
-          <div class="invalid-feedback">
-            El título debe contener entre 5 y 200 caracteres.
-          </div>
-        }
+          @for (
+            status of availableStatuses;
+            track status
+          ) {
+            <option [value]="status">
+              {{ statusLabel(status) }}
+            </option>
+          }
+        </select>
       </div>
 
-      <div class="mb-3">
-        <label
-          for="contenido"
-          class="form-label"
-        >
-          Contenido del comunicado
-        </label>
-
-        <textarea
-          id="contenido"
-          class="form-control"
-          rows="5"
-          formControlName="contenido"
-          placeholder="Escribe el contenido del comunicado"
-          [class.is-invalid]="
-            controles.contenido.touched &&
-            controles.contenido.invalid
-          "
-        ></textarea>
-
-        @if (
-          controles.contenido.touched &&
-          controles.contenido.invalid
-        ) {
-          <div class="invalid-feedback">
-            El contenido debe tener entre 10 y 4000 caracteres.
-          </div>
-        }
-      </div>
-
-      <h6 class="form-section-title">
-        Segmentación de audiencia
-      </h6>
-
-      <div class="row">
-        <div class="col-md-4 mb-3">
+      @if (
+        announcementForm.controls.status.value ===
+        'Scheduled'
+      ) {
+        <div class="col-md-6 mb-3">
           <label
-            for="rol"
+            for="scheduledAt"
             class="form-label"
           >
-            Rol
+            Fecha y hora de envío
           </label>
 
-          <select
-            id="rol"
-            class="form-select"
-            formControlName="rol"
-            [class.is-invalid]="
-              controles.rol.touched &&
-              controles.rol.invalid
-            "
+          <input
+            id="scheduledAt"
+            type="datetime-local"
+            class="form-control"
+            formControlName="scheduledAt"
           >
-            <option value="">
-              Seleccionar rol
-            </option>
-
-            @for (rol of roles; track rol.value) {
-              <option [value]="rol.value">
-                {{ rol.label }}
-              </option>
-            }
-          </select>
-
-          @if (
-            controles.rol.touched &&
-            controles.rol.invalid
-          ) {
-            <div class="invalid-feedback">
-              Selecciona un rol.
-            </div>
-          }
         </div>
+      }
+    </div>
 
-        <div class="col-md-5 mb-3">
+    <h5 class="section-subtitle mt-3">
+      Destinatarios
+    </h5>
+
+    <div class="mb-3">
+      <label
+        for="targetType"
+        class="form-label"
+      >
+        Tipo de destinatario
+      </label>
+
+      <select
+        id="targetType"
+        class="form-select"
+        formControlName="targetType"
+        (change)="onRecipientTypeChange()"
+      >
+        <option value="All">
+          Toda la comunidad educativa
+        </option>
+
+        <option value="Role">
+          Por rol
+        </option>
+
+        <option value="GradeSection">
+          Por grado y sección
+        </option>
+      </select>
+    </div>
+
+    @if (
+      announcementForm.controls.targetType.value ===
+      'Role'
+    ) {
+      <div class="mb-3">
+        <label
+          for="targetRole"
+          class="form-label"
+        >
+          Rol destinatario
+        </label>
+
+        <select
+          id="targetRole"
+          class="form-select"
+          formControlName="targetRole"
+        >
+          <option value="Student">
+            Estudiantes
+          </option>
+
+          <option value="Teacher">
+            Docentes
+          </option>
+
+          <option value="Coordinator">
+            Coordinadores
+          </option>
+        </select>
+      </div>
+    }
+
+    @if (
+      announcementForm.controls.targetType.value ===
+      'GradeSection'
+    ) {
+      <div class="row">
+        <div class="col-md-6 mb-3">
           <label
-            for="grado"
+            for="gradeLevel"
             class="form-label"
           >
             Grado
           </label>
 
-          <select
-            id="grado"
-            class="form-select"
-            formControlName="grado"
+          <input
+            id="gradeLevel"
+            type="text"
+            class="form-control"
+            formControlName="gradeLevel"
+            maxlength="20"
+            placeholder="Ejemplo: 5.º secundaria"
           >
-            <option value="">
-              Todos los grados
-            </option>
-
-            @for (grado of grados; track grado) {
-              <option [value]="grado">
-                {{ grado }}
-              </option>
-            }
-          </select>
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-6 mb-3">
           <label
-            for="seccion"
+            for="section"
             class="form-label"
           >
             Sección
           </label>
 
-          <select
-            id="seccion"
-            class="form-select"
-            formControlName="seccion"
-          >
-            <option value="">
-              Todas
-            </option>
-
-            @for (
-              seccion of secciones;
-              track seccion
-            ) {
-              <option [value]="seccion">
-                {{ seccion }}
-              </option>
-            }
-          </select>
-        </div>
-      </div>
-
-      <h6 class="form-section-title">
-        Programación
-      </h6>
-
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <label
-            for="estado"
-            class="form-label"
-          >
-            Estado
-          </label>
-
-          <select
-            id="estado"
-            class="form-select"
-            formControlName="estado"
-          >
-            @for (
-              estado of estados;
-              track estado
-            ) {
-              <option [value]="estado">
-                {{ etiquetaEstado(estado) }}
-              </option>
-            }
-          </select>
-        </div>
-
-        <div class="col-md-4 mb-3">
-          <label
-            for="fechaEnvio"
-            class="form-label"
-          >
-            Fecha de envío
-          </label>
-
           <input
-            id="fechaEnvio"
-            type="date"
+            id="section"
+            type="text"
             class="form-control"
-            formControlName="fechaEnvio"
+            formControlName="section"
+            maxlength="20"
+            placeholder="Ejemplo: A"
           >
         </div>
-
-        <div class="col-md-4 mb-4">
-          <label
-            for="horaEnvio"
-            class="form-label"
-          >
-            Hora de envío
-          </label>
-
-          <input
-            id="horaEnvio"
-            type="time"
-            class="form-control"
-            formControlName="horaEnvio"
-          >
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button
-          type="submit"
-          class="btn-primary-custom"
-        >
-          {{
-            comunicadoEditandoId !== null
-              ? 'Actualizar comunicado'
-              : 'Guardar comunicado'
-          }}
-        </button>
-
-        @if (comunicadoEditandoId !== null) {
-          <button
-            type="button"
-            class="btn-secondary-custom"
-            (click)="cancelarEdicion()"
-          >
-            Cancelar edición
-          </button>
-        }
-      </div>
-    </form>
-  </div>
-
-  <div class="section-card">
-    <h5 class="section-subtitle">
-      Historial de comunicados
-    </h5>
-
-    <form
-      class="filter-form"
-      [formGroup]="filtroForm"
-    >
-      <div>
-        <label
-          for="filtroEstado"
-          class="form-label"
-        >
-          Estado
-        </label>
-
-        <select
-          id="filtroEstado"
-          class="form-select"
-          formControlName="estado"
-        >
-          <option value="">
-            Todos
-          </option>
-
-          @for (
-            estado of estados;
-            track estado
-          ) {
-            <option [value]="estado">
-              {{ etiquetaEstado(estado) }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <div>
-        <label
-          for="filtroRol"
-          class="form-label"
-        >
-          Destinatario
-        </label>
-
-        <select
-          id="filtroRol"
-          class="form-select"
-          formControlName="rol"
-        >
-          <option value="">
-            Todos
-          </option>
-
-          @for (rol of roles; track rol.value) {
-            <option [value]="rol.value">
-              {{ rol.label }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <button
-        type="button"
-        class="btn-secondary-custom filter-button"
-        (click)="limpiarFiltros()"
-      >
-        Limpiar filtros
-      </button>
-    </form>
-
-    @if (comunicadosFiltrados.length === 0) {
-      <div class="empty-state">
-        No existen comunicados para mostrar.
-      </div>
-    } @else {
-      <div class="table-responsive">
-        <table class="table custom-table">
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Destinatarios</th>
-              <th>Estado</th>
-              <th>Fecha programada</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            @for (
-              comunicado of comunicadosFiltrados;
-              track comunicado.comunicadoId
-            ) {
-              <tr>
-                <td>
-                  <strong>
-                    {{ comunicado.titulo }}
-                  </strong>
-                </td>
-
-                <td>
-                  {{ resumenDestinatarios(comunicado) }}
-                </td>
-
-                <td>
-                  <span
-                    class="status-badge"
-                    [class.status-borrador]="
-                      comunicado.estado === 'BORRADOR'
-                    "
-                    [class.status-programado]="
-                      comunicado.estado === 'PROGRAMADO'
-                    "
-                    [class.status-enviado]="
-                      comunicado.estado === 'ENVIADO'
-                    "
-                    [class.status-cancelado]="
-                      comunicado.estado === 'CANCELADO'
-                    "
-                  >
-                    {{ etiquetaEstado(comunicado.estado) }}
-                  </span>
-                </td>
-
-                <td>
-                  {{
-                    formatearFecha(
-                      comunicado.fechaProgramada
-                    )
-                  }}
-                </td>
-
-                <td>
-                  <div class="table-actions">
-                    <button
-                      type="button"
-                      class="action-link action-button"
-                      (click)="editarComunicado(comunicado)"
-                    >
-                      Editar
-                    </button>
-
-                    @if (
-                      comunicado.estado !== 'CANCELADO' &&
-                      comunicado.estado !== 'ENVIADO'
-                    ) {
-                      <button
-                        type="button"
-                        class="action-link action-button cancel-link"
-                        (click)="cancelarComunicado(comunicado)"
-                      >
-                        Cancelar
-                      </button>
-                    }
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
       </div>
     }
+
+    <div class="d-flex gap-2 flex-wrap">
+      <button
+        type="submit"
+        class="btn-primary-custom"
+        [disabled]="isSaving"
+      >
+        {{
+          isSaving
+            ? 'Guardando...'
+            : editingId === null
+              ? 'Crear comunicado'
+              : 'Guardar cambios'
+        }}
+      </button>
+
+      @if (editingId !== null) {
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          [disabled]="isSaving"
+          (click)="resetForm()"
+        >
+          Cancelar edición
+        </button>
+      }
+    </div>
+  </form>
+</div>
+
+<div class="section-card">
+
+  <div
+    class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-3"
+  >
+    <div>
+      <h5 class="section-subtitle mb-1">
+        Historial de comunicados
+      </h5>
+
+      <span class="text-muted">
+        Consulte y gestione los comunicados registrados.
+      </span>
+    </div>
+
+    <div>
+      <label
+        for="statusFilter"
+        class="form-label"
+      >
+        Filtrar por estado
+      </label>
+
+      <select
+        id="statusFilter"
+        class="form-select"
+        [value]="selectedStatus"
+        (change)="onStatusFilterChange($event)"
+      >
+        <option value="">
+          Todos
+        </option>
+
+        <option value="Draft">
+          Borradores
+        </option>
+
+        <option value="Scheduled">
+          Programados
+        </option>
+
+        <option value="Sent">
+          Enviados
+        </option>
+
+        <option value="Cancelled">
+          Cancelados
+        </option>
+      </select>
+    </div>
   </div>
+
+  @if (isLoading) {
+    <div class="alert alert-info">
+      Cargando comunicados...
+    </div>
+  } @else if (announcements.length === 0) {
+    <div class="alert alert-secondary">
+      No se encontraron comunicados.
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Destinatarios</th>
+            <th>Estado</th>
+            <th>Programación</th>
+            <th>Creación</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (
+            announcement of announcements;
+            track announcement.id
+          ) {
+            <tr>
+              <td>
+                <strong>
+                  {{ announcement.title }}
+                </strong>
+
+                <div class="text-muted small">
+                  {{ announcement.content }}
+                </div>
+              </td>
+
+              <td>
+                {{ recipientLabel(announcement) }}
+              </td>
+
+              <td>
+                {{ statusLabel(announcement.status) }}
+              </td>
+
+              <td>
+                @if (announcement.scheduledAt) {
+                  {{
+                    announcement.scheduledAt
+                      | date:'dd/MM/yyyy HH:mm'
+                  }}
+                } @else {
+                  <span class="text-muted">
+                    No programado
+                  </span>
+                }
+              </td>
+
+              <td>
+                {{
+                  announcement.createdAt
+                    | date:'dd/MM/yyyy HH:mm'
+                }}
+              </td>
+
+              <td class="text-end">
+                <div
+                  class="d-flex justify-content-end gap-2 flex-wrap"
+                >
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="editAnnouncement(announcement)"
+                  >
+                    Editar
+                  </button>
+
+                  @if (
+                    announcement.status !== 'Cancelled'
+                  ) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      [disabled]="
+                        processingId === announcement.id
+                      "
+                      (click)="
+                        cancelAnnouncement(announcement)
+                      "
+                    >
+                      {{
+                        processingId === announcement.id
+                          ? 'Cancelando...'
+                          : 'Cancelar'
+                      }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </div>

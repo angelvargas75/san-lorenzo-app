@@ -1,479 +1,579 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
-  Validators
+  Validators,
 } from '@angular/forms';
+import { finalize } from 'rxjs';
 
-import { PageTitle } from '../../../shared/components/page-title/page-title';
+import { ApiProblem } from '../../../core/models/auth.model';
 import {
-  Comunicado,
-  EstadoComunicado
-} from '../models/comunicado.model';
+  CoordinatorAnnouncement,
+  CoordinatorAnnouncementRecipientRequest,
+  CoordinatorAnnouncementStatus,
+  CoordinatorRecipientType,
+  CoordinatorTargetRole,
+  CreateCoordinatorAnnouncementRequest,
+  CreateCoordinatorAnnouncementStatus,
+  UpdateCoordinatorAnnouncementRequest,
+} from '../../../core/models/coordinator-announcement.model';
+import {
+  CoordinatorAnnouncementService,
+} from '../../../core/services/coordinator-announcement.service';
+import {
+  PageTitle,
+} from '../../../shared/components/page-title/page-title';
 
 @Component({
   selector: 'app-comunicados',
   imports: [
+    CommonModule,
+    ReactiveFormsModule,
     PageTitle,
-    ReactiveFormsModule
   ],
   templateUrl: './comunicados.html',
   styleUrl: './comunicados.scss',
 })
 export class Comunicados implements OnInit {
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly storageKey = 'comunicados-coordinador';
+  readonly announcementForm;
 
-  readonly estados: EstadoComunicado[] = [
-    'BORRADOR',
-    'PROGRAMADO',
-    'ENVIADO',
-    'CANCELADO'
+  readonly createStatusOptions:
+    CreateCoordinatorAnnouncementStatus[] = [
+      'Draft',
+      'Scheduled',
+      'Sent',
+    ];
+
+  readonly updateStatusOptions:
+    CoordinatorAnnouncementStatus[] = [
+      'Draft',
+      'Scheduled',
+      'Sent',
+      'Cancelled',
+    ];
+
+  readonly recipientTypeOptions:
+    CoordinatorRecipientType[] = [
+      'All',
+      'Role',
+      'GradeSection',
+    ];
+
+  readonly roleOptions: CoordinatorTargetRole[] = [
+    'Student',
+    'Teacher',
+    'Coordinator',
   ];
 
-  readonly roles = [
-    {
-      value: 'PADRE_FAMILIA',
-      label: 'Padres de familia'
-    },
-    {
-      value: 'ALUMNO',
-      label: 'Estudiantes'
-    },
-    {
-      value: 'DOCENTE',
-      label: 'Docentes'
-    }
-  ];
+  announcements: CoordinatorAnnouncement[] = [];
 
-  readonly grados = [
-    'Primero de primaria',
-    'Segundo de primaria',
-    'Tercero de primaria',
-    'Cuarto de primaria',
-    'Quinto de primaria',
-    'Sexto de primaria',
-    'Primero de secundaria',
-    'Segundo de secundaria',
-    'Tercero de secundaria',
-    'Cuarto de secundaria',
-    'Quinto de secundaria'
-  ];
+  selectedStatus: CoordinatorAnnouncementStatus | '' = '';
+  editingId: number | null = null;
+  processingId: number | null = null;
 
-  readonly secciones = [
-    'A',
-    'B',
-    'C'
-  ];
+  isLoading = false;
+  isSaving = false;
 
-  comunicados: Comunicado[] = [];
-  comunicadoEditandoId: number | null = null;
+  errorMessage = '';
+  successMessage = '';
 
-  mensajeExito = '';
-  mensajeError = '';
-
-  readonly comunicadoForm = this.formBuilder.nonNullable.group({
-    titulo: [
-      '',
-      [
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly announcementService:
+      CoordinatorAnnouncementService,
+  ) {
+    this.announcementForm = this.formBuilder.nonNullable.group({
+      title: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(200),
+        ],
+      ],
+      content: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(1),
+        ],
+      ],
+      status: [
+        'Draft' as CoordinatorAnnouncementStatus,
         Validators.required,
-        Validators.minLength(5),
-        Validators.maxLength(200)
-      ]
-    ],
-
-    contenido: [
-      '',
-      [
+      ],
+      scheduledAt: [''],
+      targetType: [
+        'All' as CoordinatorRecipientType,
         Validators.required,
-        Validators.minLength(10),
-        Validators.maxLength(4000)
-      ]
-    ],
+      ],
+      targetRole: [
+        'Student' as CoordinatorTargetRole,
+      ],
+      gradeLevel: [''],
+      section: [''],
+    });
+  }
 
-    rol: [
-      '',
-      Validators.required
-    ],
-
-    grado: [''],
-    seccion: [''],
-
-    estado: [
-      'BORRADOR' as EstadoComunicado,
-      Validators.required
-    ],
-
-    fechaEnvio: [''],
-    horaEnvio: ['']
-  });
-
-  readonly filtroForm = this.formBuilder.nonNullable.group({
-    estado: [''],
-    rol: ['']
-  });
+  get availableStatuses():
+    CoordinatorAnnouncementStatus[] {
+    return this.editingId === null
+      ? this.createStatusOptions
+      : this.updateStatusOptions;
+  }
 
   ngOnInit(): void {
-    this.cargarComunicadosTemporales();
+    this.loadAnnouncements();
   }
 
-  get controles() {
-    return this.comunicadoForm.controls;
-  }
+  loadAnnouncements(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
 
-  get comunicadosFiltrados(): Comunicado[] {
-    const filtros = this.filtroForm.getRawValue();
+    const status =
+      this.selectedStatus === ''
+        ? undefined
+        : this.selectedStatus;
 
-    return [...this.comunicados]
-      .filter((comunicado) => {
-        const coincideEstado =
-          !filtros.estado ||
-          comunicado.estado === filtros.estado;
-
-        const coincideRol =
-          !filtros.rol ||
-          comunicado.destinatarios.some(
-            (destinatario) =>
-              destinatario.rol === filtros.rol
+    this.announcementService
+      .getAnnouncements(status)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: (announcements) => {
+          this.announcements = announcements;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.getErrorMessage(
+            error,
+            'No fue posible cargar los comunicados.',
           );
-
-        return coincideEstado && coincideRol;
-      })
-      .sort((a, b) => {
-        const fechaA = new Date(
-          a.fechaCreacion ?? 0
-        ).getTime();
-
-        const fechaB = new Date(
-          b.fechaCreacion ?? 0
-        ).getTime();
-
-        return fechaB - fechaA;
+        },
       });
   }
 
-  guardarComunicado(): void {
-    this.mensajeExito = '';
-    this.mensajeError = '';
+  onStatusFilterChange(event: Event): void {
+    const element = event.target as HTMLSelectElement;
 
-    if (this.comunicadoForm.invalid) {
-      this.comunicadoForm.markAllAsTouched();
+    this.selectedStatus =
+      element.value as CoordinatorAnnouncementStatus | '';
 
-      this.mensajeError =
-        'Revisa los campos obligatorios antes de guardar.';
+    this.loadAnnouncements();
+  }
 
+  onRecipientTypeChange(): void {
+    const targetType =
+      this.announcementForm.controls.targetType.value;
+
+    if (targetType === 'All') {
+      this.announcementForm.patchValue({
+        targetRole: 'Student',
+        gradeLevel: '',
+        section: '',
+      });
+    }
+
+    if (targetType === 'Role') {
+      this.announcementForm.patchValue({
+        gradeLevel: '',
+        section: '',
+      });
+    }
+
+    if (targetType === 'GradeSection') {
+      this.announcementForm.patchValue({
+        targetRole: 'Student',
+      });
+    }
+  }
+
+  saveAnnouncement(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (this.announcementForm.invalid) {
+      this.announcementForm.markAllAsTouched();
       return;
     }
 
-    const datos = this.comunicadoForm.getRawValue();
+    const formValue =
+      this.announcementForm.getRawValue();
+
+    const recipient = this.buildRecipient();
+
+    if (!recipient) {
+      return;
+    }
+
+    const scheduledAt =
+      this.toIsoDate(formValue.scheduledAt);
 
     if (
-      datos.estado === 'PROGRAMADO' &&
-      (!datos.fechaEnvio || !datos.horaEnvio)
+      formValue.status === 'Scheduled' &&
+      !scheduledAt
     ) {
-      this.mensajeError =
-        'Los comunicados programados requieren fecha y hora de envío.';
-
+      this.errorMessage =
+        'Seleccione la fecha y hora de programación.';
       return;
     }
 
-    const fechaProgramada =
-      datos.fechaEnvio && datos.horaEnvio
-        ? new Date(
-            `${datos.fechaEnvio}T${datos.horaEnvio}:00`
-          ).toISOString()
+    const normalizedScheduledAt =
+      formValue.status === 'Scheduled'
+        ? scheduledAt
         : null;
 
-    if (
-      datos.estado === 'PROGRAMADO' &&
-      fechaProgramada &&
-      new Date(fechaProgramada).getTime() <= Date.now()
-    ) {
-      this.mensajeError =
-        'La fecha programada debe ser posterior al momento actual.';
+    this.isSaving = true;
 
-      return;
-    }
-
-    const destinatarios = [
-      {
-        rol: datos.rol,
-        grado: datos.grado || null,
-        seccion: datos.seccion || null
-      }
-    ];
-
-    if (this.comunicadoEditandoId !== null) {
-      const indice = this.comunicados.findIndex(
-        (comunicado) =>
-          comunicado.comunicadoId ===
-          this.comunicadoEditandoId
-      );
-
-      if (indice === -1) {
-        this.mensajeError =
-          'No se encontró el comunicado que se estaba editando.';
-
+    if (this.editingId === null) {
+      if (formValue.status === 'Cancelled') {
+        this.isSaving = false;
+        this.errorMessage =
+          'Un comunicado nuevo no puede crearse como cancelado.';
         return;
       }
 
-      const comunicadoAnterior =
-        this.comunicados[indice];
+      const request:
+        CreateCoordinatorAnnouncementRequest = {
+          title: formValue.title.trim(),
+          content: formValue.content.trim(),
+          scheduledAt: normalizedScheduledAt,
+          status:
+            formValue.status as
+              CreateCoordinatorAnnouncementStatus,
+          recipients: [recipient],
+        };
 
-      const comunicadoActualizado: Comunicado = {
-        ...comunicadoAnterior,
-        titulo: datos.titulo.trim(),
-        contenido: datos.contenido.trim(),
-        estado: datos.estado,
-        fechaProgramada,
-        destinatarios
-      };
+      this.announcementService
+        .createAnnouncement(request)
+        .pipe(
+          finalize(() => {
+            this.isSaving = false;
+          }),
+        )
+        .subscribe({
+          next: () => {
+            this.successMessage =
+              'El comunicado se creó correctamente.';
 
-      this.comunicados[indice] =
-        comunicadoActualizado;
+            this.resetForm(false);
+            this.loadAnnouncements();
+          },
+          error: (error: HttpErrorResponse) => {
+            this.errorMessage = this.getErrorMessage(
+              error,
+              'No fue posible crear el comunicado.',
+            );
+          },
+        });
 
-      this.mensajeExito =
-        'El comunicado se actualizó correctamente.';
-    } else {
-      const nuevoComunicado: Comunicado = {
-        comunicadoId: this.generarId(),
-        titulo: datos.titulo.trim(),
-        contenido: datos.contenido.trim(),
-        estado: datos.estado,
-        fechaProgramada,
-        creadoPorUsuarioId: 1,
-        fechaCreacion: new Date().toISOString(),
-        destinatarios
-      };
-
-      this.comunicados.push(nuevoComunicado);
-
-      this.mensajeExito =
-        datos.estado === 'PROGRAMADO'
-          ? 'El comunicado se programó correctamente.'
-          : 'El comunicado se guardó correctamente.';
+      return;
     }
 
-    this.guardarEnLocalStorage();
-    this.reiniciarFormulario();
+    const request:
+      UpdateCoordinatorAnnouncementRequest = {
+        title: formValue.title.trim(),
+        content: formValue.content.trim(),
+        scheduledAt: normalizedScheduledAt,
+        status: formValue.status,
+        recipients: [recipient],
+      };
+
+    this.announcementService
+      .updateAnnouncement(
+        this.editingId,
+        request,
+      )
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage =
+            'El comunicado se actualizó correctamente.';
+
+          this.resetForm(false);
+          this.loadAnnouncements();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.getErrorMessage(
+            error,
+            'No fue posible actualizar el comunicado.',
+          );
+        },
+      });
   }
 
-  editarComunicado(comunicado: Comunicado): void {
-    this.mensajeExito = '';
-    this.mensajeError = '';
+  editAnnouncement(
+    announcement: CoordinatorAnnouncement,
+  ): void {
+    const recipient =
+      announcement.recipients[0];
 
-    this.comunicadoEditandoId =
-      comunicado.comunicadoId ?? null;
+    this.editingId = announcement.id;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    const destinatario =
-      comunicado.destinatarios[0];
-
-    let fechaEnvio = '';
-    let horaEnvio = '';
-
-    if (comunicado.fechaProgramada) {
-      const fecha = new Date(
-        comunicado.fechaProgramada
-      );
-
-      fechaEnvio = this.formatearFechaInput(fecha);
-      horaEnvio = this.formatearHoraInput(fecha);
-    }
-
-    this.comunicadoForm.patchValue({
-      titulo: comunicado.titulo,
-      contenido: comunicado.contenido,
-      rol: destinatario?.rol ?? '',
-      grado: destinatario?.grado ?? '',
-      seccion: destinatario?.seccion ?? '',
-      estado: comunicado.estado,
-      fechaEnvio,
-      horaEnvio
+    this.announcementForm.patchValue({
+      title: announcement.title,
+      content: announcement.content,
+      status: announcement.status,
+      scheduledAt:
+        this.toLocalDateTimeInput(
+          announcement.scheduledAt,
+        ),
+      targetType:
+        recipient?.targetType ?? 'All',
+      targetRole:
+        recipient?.targetRole ?? 'Student',
+      gradeLevel:
+        recipient?.gradeLevel ?? '',
+      section:
+        recipient?.section ?? '',
     });
+
+    this.announcementForm.markAsPristine();
 
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
   }
 
-  cancelarEdicion(): void {
-    this.mensajeError = '';
-    this.reiniciarFormulario();
-  }
-
-  cancelarComunicado(
-    comunicado: Comunicado
+  cancelAnnouncement(
+    announcement: CoordinatorAnnouncement,
   ): void {
-    if (comunicado.comunicadoId === undefined) {
+    if (announcement.status === 'Cancelled') {
       return;
     }
 
-    this.comunicados = this.comunicados.map(
-      (elemento) =>
-        elemento.comunicadoId ===
-        comunicado.comunicadoId
-          ? {
-              ...elemento,
-              estado: 'CANCELADO'
-            }
-          : elemento
+    const confirmed = window.confirm(
+      `¿Desea cancelar el comunicado "${announcement.title}"?`,
     );
 
-    this.guardarEnLocalStorage();
+    if (!confirmed) {
+      return;
+    }
 
-    this.mensajeExito =
-      'El comunicado fue cancelado.';
+    const request:
+      UpdateCoordinatorAnnouncementRequest = {
+        title: announcement.title,
+        content: announcement.content,
+        scheduledAt: announcement.scheduledAt,
+        status: 'Cancelled',
+        recipients:
+          announcement.recipients.map(
+            (recipient) => ({
+              targetType: recipient.targetType,
+              targetRole: recipient.targetRole,
+              gradeLevel: recipient.gradeLevel,
+              section: recipient.section,
+            }),
+          ),
+      };
+
+    this.processingId = announcement.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.announcementService
+      .updateAnnouncement(
+        announcement.id,
+        request,
+      )
+      .pipe(
+        finalize(() => {
+          this.processingId = null;
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage =
+            'El comunicado fue cancelado.';
+
+          this.loadAnnouncements();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.getErrorMessage(
+            error,
+            'No fue posible cancelar el comunicado.',
+          );
+        },
+      });
   }
 
-  limpiarFiltros(): void {
-    this.filtroForm.reset({
-      estado: '',
-      rol: ''
+  resetForm(clearMessages = true): void {
+    this.editingId = null;
+
+    this.announcementForm.reset({
+      title: '',
+      content: '',
+      status: 'Draft',
+      scheduledAt: '',
+      targetType: 'All',
+      targetRole: 'Student',
+      gradeLevel: '',
+      section: '',
     });
+
+    this.announcementForm.markAsPristine();
+    this.announcementForm.markAsUntouched();
+
+    if (clearMessages) {
+      this.errorMessage = '';
+      this.successMessage = '';
+    }
   }
 
-  etiquetaEstado(
-    estado: EstadoComunicado
+  statusLabel(
+    status: CoordinatorAnnouncementStatus,
   ): string {
-    const etiquetas: Record<
-      EstadoComunicado,
-      string
-    > = {
-      BORRADOR: 'Borrador',
-      PROGRAMADO: 'Programado',
-      ENVIADO: 'Enviado',
-      CANCELADO: 'Cancelado'
-    };
+    const labels:
+      Record<CoordinatorAnnouncementStatus, string> = {
+        Draft: 'Borrador',
+        Scheduled: 'Programado',
+        Sent: 'Enviado',
+        Cancelled: 'Cancelado',
+      };
 
-    return etiquetas[estado];
+    return labels[status];
   }
 
-  etiquetaRol(rol?: string | null): string {
-    return this.roles.find(
-      (elemento) => elemento.value === rol
-    )?.label ?? rol ?? 'Todos';
-  }
-
-  resumenDestinatarios(
-    comunicado: Comunicado
+  recipientLabel(
+    announcement: CoordinatorAnnouncement,
   ): string {
-    const destinatario =
-      comunicado.destinatarios[0];
+    const recipient =
+      announcement.recipients[0];
 
-    if (!destinatario) {
+    if (!recipient) {
       return 'Sin destinatarios';
     }
 
-    const partes = [
-      this.etiquetaRol(destinatario.rol),
-      destinatario.grado,
-      destinatario.seccion
-        ? `Sección ${destinatario.seccion}`
-        : null
-    ].filter(Boolean);
-
-    return partes.join(' · ');
-  }
-
-  formatearFecha(
-    fecha?: string | null
-  ): string {
-    if (!fecha) {
-      return 'Sin programar';
+    if (recipient.targetType === 'All') {
+      return 'Todos';
     }
 
-    return new Intl.DateTimeFormat(
-      'es-PE',
-      {
-        dateStyle: 'short',
-        timeStyle: 'short'
+    if (recipient.targetType === 'Role') {
+      const roleLabels:
+        Record<CoordinatorTargetRole, string> = {
+          Student: 'Estudiantes',
+          Teacher: 'Docentes',
+          Coordinator: 'Coordinadores',
+        };
+
+      return recipient.targetRole
+        ? roleLabels[recipient.targetRole]
+        : 'Rol no definido';
+    }
+
+    return `${recipient.gradeLevel ?? ''} - ${
+      recipient.section ?? ''
+    }`.trim();
+  }
+
+  private buildRecipient():
+    CoordinatorAnnouncementRecipientRequest | null {
+    const formValue =
+      this.announcementForm.getRawValue();
+
+    if (formValue.targetType === 'All') {
+      return {
+        targetType: 'All',
+        targetRole: null,
+        gradeLevel: null,
+        section: null,
+      };
+    }
+
+    if (formValue.targetType === 'Role') {
+      if (!formValue.targetRole) {
+        this.errorMessage =
+          'Seleccione el rol destinatario.';
+        return null;
       }
-    ).format(new Date(fecha));
-  }
 
-  private cargarComunicadosTemporales(): void {
-    const datosGuardados =
-      localStorage.getItem(this.storageKey);
-
-    if (!datosGuardados) {
-      return;
+      return {
+        targetType: 'Role',
+        targetRole: formValue.targetRole,
+        gradeLevel: null,
+        section: null,
+      };
     }
 
-    try {
-      const datos =
-        JSON.parse(datosGuardados) as Comunicado[];
+    const gradeLevel =
+      formValue.gradeLevel.trim();
 
-      this.comunicados =
-        Array.isArray(datos) ? datos : [];
-    } catch {
-      localStorage.removeItem(this.storageKey);
+    const section =
+      formValue.section.trim();
 
-      this.mensajeError =
-        'No se pudo recuperar el historial de comunicados.';
+    if (!gradeLevel || !section) {
+      this.errorMessage =
+        'Ingrese el grado y la sección destinatarios.';
+      return null;
     }
+
+    return {
+      targetType: 'GradeSection',
+      targetRole: null,
+      gradeLevel,
+      section,
+    };
   }
 
-  private guardarEnLocalStorage(): void {
-    localStorage.setItem(
-      this.storageKey,
-      JSON.stringify(this.comunicados)
-    );
+  private toIsoDate(
+    value: string,
+  ): string | null {
+    if (!value) {
+      return null;
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date.toISOString();
   }
 
-  private generarId(): number {
-    const mayorId = Math.max(
-      0,
-      ...this.comunicados.map(
-        (comunicado) =>
-          comunicado.comunicadoId ?? 0
-      )
-    );
-
-    return mayorId + 1;
-  }
-
-  private reiniciarFormulario(): void {
-    this.comunicadoEditandoId = null;
-
-    this.comunicadoForm.reset({
-      titulo: '',
-      contenido: '',
-      rol: '',
-      grado: '',
-      seccion: '',
-      estado: 'BORRADOR',
-      fechaEnvio: '',
-      horaEnvio: ''
-    });
-  }
-
-  private formatearFechaInput(
-    fecha: Date
+  private toLocalDateTimeInput(
+    value: string | null,
   ): string {
-    const anio = fecha.getFullYear();
-    const mes = String(
-      fecha.getMonth() + 1
-    ).padStart(2, '0');
+    if (!value) {
+      return '';
+    }
 
-    const dia = String(
-      fecha.getDate()
-    ).padStart(2, '0');
+    const date = new Date(value);
 
-    return `${anio}-${mes}-${dia}`;
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    const timezoneOffset =
+      date.getTimezoneOffset() * 60_000;
+
+    return new Date(
+      date.getTime() - timezoneOffset,
+    )
+      .toISOString()
+      .slice(0, 16);
   }
 
-  private formatearHoraInput(
-    fecha: Date
+  private getErrorMessage(
+    error: HttpErrorResponse,
+    fallbackMessage: string,
   ): string {
-    const horas = String(
-      fecha.getHours()
-    ).padStart(2, '0');
+    const problem =
+      error.error as ApiProblem | null;
 
-    const minutos = String(
-      fecha.getMinutes()
-    ).padStart(2, '0');
-
-    return `${horas}:${minutos}`;
+    return problem?.detail ??
+      problem?.title ??
+      fallbackMessage;
   }
 }
