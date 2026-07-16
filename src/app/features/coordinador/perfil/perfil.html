@@ -1,252 +1,210 @@
 <app-page-title titulo="Mi perfil"></app-page-title>
 
 <div class="section-card">
+
+  @if (isLoading) {
+    <div class="alert alert-info">
+      Cargando perfil...
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+    </div>
+  }
+
   <form
     class="form-wrapper"
-    [formGroup]="perfilForm"
-    (ngSubmit)="guardarPerfil()"
-    novalidate
+    [formGroup]="profileForm"
+    (ngSubmit)="saveProfile()"
   >
-    @if (mensajeExito) {
-      <div
-        class="alert alert-success"
-        role="alert"
-      >
-        {{ mensajeExito }}
-      </div>
-    }
-
-    @if (mensajeError) {
-      <div
-        class="alert alert-danger"
-        role="alert"
-      >
-        {{ mensajeError }}
-      </div>
-    }
-
     <h5 class="section-subtitle">
       Datos personales
     </h5>
 
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label
-          for="nombres"
-          class="form-label"
-        >
-          Nombres
-        </label>
+    <div class="mb-3">
+      <label
+        for="fullName"
+        class="form-label"
+      >
+        Nombre completo
+      </label>
 
-        <input
-          id="nombres"
-          type="text"
-          class="form-control"
-          formControlName="nombres"
-          autocomplete="given-name"
-          [class.is-invalid]="
-            controles.nombres.touched &&
-            controles.nombres.invalid
-          "
-        >
+      <input
+        id="fullName"
+        type="text"
+        class="form-control"
+        formControlName="fullName"
+        autocomplete="name"
+        [class.is-invalid]="
+          profileForm.controls.fullName.invalid &&
+          profileForm.controls.fullName.touched
+        "
+      >
 
-        @if (
-          controles.nombres.touched &&
-          controles.nombres.invalid
-        ) {
-          <div class="invalid-feedback">
-            Ingresa nombres válidos de entre 2 y 60 caracteres.
-          </div>
-        }
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <label
-          for="apellidos"
-          class="form-label"
-        >
-          Apellidos
-        </label>
-
-        <input
-          id="apellidos"
-          type="text"
-          class="form-control"
-          formControlName="apellidos"
-          autocomplete="family-name"
-          [class.is-invalid]="
-            controles.apellidos.touched &&
-            controles.apellidos.invalid
-          "
-        >
-
-        @if (
-          controles.apellidos.touched &&
-          controles.apellidos.invalid
-        ) {
-          <div class="invalid-feedback">
-            Ingresa apellidos válidos de entre 2 y 60 caracteres.
-          </div>
-        }
-      </div>
+      @if (
+        profileForm.controls.fullName.invalid &&
+        profileForm.controls.fullName.touched
+      ) {
+        <div class="invalid-feedback">
+          Ingrese el nombre completo.
+        </div>
+      }
     </div>
 
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label
-          for="correo"
-          class="form-label"
-        >
-          Correo electrónico
-        </label>
+    <div class="mb-3">
+      <label
+        for="email"
+        class="form-label"
+      >
+        Correo electrónico
+      </label>
 
-        <input
-          id="correo"
-          type="email"
-          class="form-control"
-          formControlName="correo"
-          autocomplete="email"
-          [class.is-invalid]="
-            controles.correo.touched &&
-            controles.correo.invalid
-          "
-        >
+      <input
+        id="email"
+        type="email"
+        class="form-control"
+        formControlName="email"
+        autocomplete="email"
+        [class.is-invalid]="
+          profileForm.controls.email.invalid &&
+          profileForm.controls.email.touched
+        "
+      >
 
-        @if (
-          controles.correo.touched &&
-          controles.correo.invalid
-        ) {
-          <div class="invalid-feedback">
-            Ingresa un correo electrónico válido.
-          </div>
-        }
-      </div>
+      @if (
+        profileForm.controls.email.errors?.['required'] &&
+        profileForm.controls.email.touched
+      ) {
+        <div class="invalid-feedback">
+          El correo electrónico es obligatorio.
+        </div>
+      }
 
-      <div class="col-md-6 mb-4">
-        <label
-          for="telefono"
-          class="form-label"
-        >
-          Teléfono
-        </label>
+      @if (
+        profileForm.controls.email.errors?.['email'] &&
+        profileForm.controls.email.touched
+      ) {
+        <div class="invalid-feedback">
+          Ingrese un correo electrónico válido.
+        </div>
+      }
+    </div>
 
-        <input
-          id="telefono"
-          type="tel"
-          class="form-control"
-          formControlName="telefono"
-          autocomplete="tel"
-          placeholder="Ejemplo: 987654321"
-          [class.is-invalid]="
-            controles.telefono.touched &&
-            controles.telefono.invalid
-          "
-        >
+    <div class="mb-4">
+      <label
+        for="phone"
+        class="form-label"
+      >
+        Teléfono
+      </label>
 
-        @if (
-          controles.telefono.touched &&
-          controles.telefono.invalid
-        ) {
-          <div class="invalid-feedback">
-            Ingresa un teléfono válido de entre 7 y 20 caracteres.
-          </div>
-        }
-      </div>
+      <input
+        id="phone"
+        type="tel"
+        class="form-control"
+        formControlName="phone"
+        autocomplete="tel"
+        placeholder="Ejemplo: 987654321"
+        [class.is-invalid]="
+          profileForm.controls.phone.invalid &&
+          profileForm.controls.phone.touched
+        "
+      >
+
+      @if (
+        profileForm.controls.phone.invalid &&
+        profileForm.controls.phone.touched
+      ) {
+        <div class="invalid-feedback">
+          El teléfono no puede superar los 30 caracteres.
+        </div>
+      }
     </div>
 
     <h5 class="section-subtitle">
       Información laboral
     </h5>
 
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label
-          for="rol"
-          class="form-label"
-        >
-          Rol
-        </label>
+    <div class="mb-4">
+      <label
+        for="managementArea"
+        class="form-label"
+      >
+        Área de gestión
+      </label>
 
-        <input
-          id="rol"
-          type="text"
-          class="form-control"
-          [value]="rol"
-          readonly
-        >
-      </div>
+      <input
+        id="managementArea"
+        type="text"
+        class="form-control"
+        formControlName="managementArea"
+        placeholder="Ejemplo: Gestión académica"
+        [class.is-invalid]="
+          profileForm.controls.managementArea.invalid &&
+          profileForm.controls.managementArea.touched
+        "
+      >
 
-      <div class="col-md-6 mb-4">
-        <label
-          for="areaGestion"
-          class="form-label"
-        >
-          Área de gestión
-        </label>
-
-        <input
-          id="areaGestion"
-          type="text"
-          class="form-control"
-          formControlName="areaGestion"
-          [class.is-invalid]="
-            controles.areaGestion.touched &&
-            controles.areaGestion.invalid
-          "
-        >
-
-        @if (
-          controles.areaGestion.touched &&
-          controles.areaGestion.invalid
-        ) {
-          <div class="invalid-feedback">
-            Ingresa un área de gestión válida.
-          </div>
-        }
-      </div>
+      @if (
+        profileForm.controls.managementArea.invalid &&
+        profileForm.controls.managementArea.touched
+      ) {
+        <div class="invalid-feedback">
+          Ingrese el área de gestión.
+        </div>
+      }
     </div>
 
     <h5 class="section-subtitle">
       Notificaciones
     </h5>
 
-    <div class="form-check mb-2">
+    <div class="form-check mb-3">
       <input
-        id="notificacionesCorreo"
+        id="emailNotifications"
         class="form-check-input"
         type="checkbox"
-        formControlName="notificacionesCorreo"
+        formControlName="emailNotifications"
       >
 
       <label
         class="form-check-label"
-        for="notificacionesCorreo"
+        for="emailNotifications"
       >
-        Recibir alertas por correo sobre el cumplimiento de tareas
+        Recibir notificaciones por correo electrónico
       </label>
     </div>
 
     <div class="form-check mb-4">
       <input
-        id="notificacionesSistema"
+        id="appNotifications"
         class="form-check-input"
         type="checkbox"
-        formControlName="notificacionesSistema"
+        formControlName="appNotifications"
       >
 
       <label
         class="form-check-label"
-        for="notificacionesSistema"
+        for="appNotifications"
       >
-        Recibir alertas sobre fallas en el sistema
+        Recibir notificaciones dentro de la aplicación
       </label>
     </div>
 
     <button
       type="submit"
       class="btn-primary-custom"
+      [disabled]="isLoading || isSaving"
     >
-      Guardar perfil
+      {{ isSaving ? 'Guardando...' : 'Guardar perfil' }}
     </button>
   </form>
 </div>

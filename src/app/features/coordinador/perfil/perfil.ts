@@ -1,174 +1,174 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
-  Validators
+  Validators,
 } from '@angular/forms';
-
+import { finalize } from 'rxjs';
+import { ApiProblem } from '../../../core/models/auth.model';
+import {
+  UpdateCoordinatorProfileRequest,
+} from '../../../core/models/coordinator-profile.model';
+import {
+  CoordinatorProfileService,
+} from '../../../core/services/coordinator-profile.service';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
-import { PerfilCoordinador } from '../models/perfil-coordinador.model';
 
 @Component({
   selector: 'app-perfil',
   imports: [
     PageTitle,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
 })
 export class Perfil implements OnInit {
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly storageKey = 'perfil-coordinador';
+  readonly profileForm;
 
-  readonly rol = 'Coordinador académico';
+  isLoading = false;
+  isSaving = false;
+  errorMessage = '';
+  successMessage = '';
 
-  mensajeExito = '';
-  mensajeError = '';
-
-  readonly perfilForm = this.formBuilder.nonNullable.group({
-    nombres: [
-      'Coordinador',
-      [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(60),
-        Validators.pattern(
-          /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]+$/
-        )
-      ]
-    ],
-
-    apellidos: [
-      'Académico',
-      [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(60),
-        Validators.pattern(
-          /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]+$/
-        )
-      ]
-    ],
-
-    correo: [
-      'coordinador@santiagoapostol.edu.pe',
-      [
-        Validators.required,
-        Validators.email,
-        Validators.maxLength(120)
-      ]
-    ],
-
-    telefono: [
-      '',
-      [
-        Validators.maxLength(20),
-        Validators.pattern(/^[0-9+\s()-]{7,20}$/)
-      ]
-    ],
-
-    areaGestion: [
-      'Gestión académica',
-      [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(100)
-      ]
-    ],
-
-    notificacionesCorreo: [true],
-    notificacionesSistema: [false]
-  });
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly profileService: CoordinatorProfileService,
+  ) {
+    this.profileForm = this.formBuilder.nonNullable.group({
+      fullName: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(150),
+        ],
+      ],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email,
+          Validators.maxLength(200),
+        ],
+      ],
+      phone: [
+        '',
+        [
+          Validators.maxLength(30),
+        ],
+      ],
+      managementArea: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(100),
+        ],
+      ],
+      emailNotifications: [true],
+      appNotifications: [true],
+    });
+  }
 
   ngOnInit(): void {
-    this.cargarPerfilTemporal();
+    this.loadProfile();
   }
 
-  get controles() {
-    return this.perfilForm.controls;
+  loadProfile(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.profileService
+      .getProfile()
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: (profile) => {
+          this.profileForm.patchValue({
+            fullName: profile.fullName,
+            email: profile.email,
+            phone: profile.phone ?? '',
+            managementArea: profile.managementArea,
+            emailNotifications: profile.emailNotifications,
+            appNotifications: profile.appNotifications,
+          });
+
+          this.profileForm.markAsPristine();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.getErrorMessage(
+            error,
+            'No fue posible cargar el perfil del coordinador.',
+          );
+        },
+      });
   }
 
-  guardarPerfil(): void {
-    this.mensajeExito = '';
-    this.mensajeError = '';
+  saveProfile(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    if (this.perfilForm.invalid) {
-      this.perfilForm.markAllAsTouched();
-
-      this.mensajeError =
-        'Revisa los campos señalados antes de guardar el perfil.';
-
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
       return;
     }
 
-    const datosFormulario = this.perfilForm.getRawValue();
+    const formValue = this.profileForm.getRawValue();
 
-    const perfil: PerfilCoordinador = {
-      usuarioId: 1,
-      nombres: datosFormulario.nombres.trim(),
-      apellidos: datosFormulario.apellidos.trim(),
-      correo: datosFormulario.correo.trim().toLowerCase(),
-      telefono:
-        datosFormulario.telefono.trim() || null,
-      rol: this.rol,
-      areaGestion:
-        datosFormulario.areaGestion.trim() || null,
-      notificacionesCorreo:
-        datosFormulario.notificacionesCorreo,
-      notificacionesSistema:
-        datosFormulario.notificacionesSistema
+    const request: UpdateCoordinatorProfileRequest = {
+      fullName: formValue.fullName.trim(),
+      email: formValue.email.trim(),
+      phone: formValue.phone.trim(),
+      managementArea: formValue.managementArea.trim(),
+      emailNotifications: formValue.emailNotifications,
+      appNotifications: formValue.appNotifications,
     };
 
-    localStorage.setItem(
-      this.storageKey,
-      JSON.stringify(perfil)
-    );
+    this.isSaving = true;
 
-    this.mensajeExito =
-      'El perfil se guardó correctamente.';
+    this.profileService
+      .updateProfile(request)
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+        }),
+      )
+      .subscribe({
+        next: (profile) => {
+          this.profileForm.patchValue({
+            fullName: profile.fullName,
+            email: profile.email,
+            phone: profile.phone ?? '',
+            managementArea: profile.managementArea,
+            emailNotifications: profile.emailNotifications,
+            appNotifications: profile.appNotifications,
+          });
+
+          this.profileForm.markAsPristine();
+          this.successMessage =
+            'El perfil se guardó correctamente.';
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.getErrorMessage(
+            error,
+            'No fue posible guardar el perfil.',
+          );
+        },
+      });
   }
 
-  private cargarPerfilTemporal(): void {
-    const perfilGuardado =
-      localStorage.getItem(this.storageKey);
+  private getErrorMessage(
+    error: HttpErrorResponse,
+    fallbackMessage: string,
+  ): string {
+    const problem = error.error as ApiProblem | null;
 
-    if (!perfilGuardado) {
-      return;
-    }
-
-    try {
-      const perfil =
-        JSON.parse(perfilGuardado) as Partial<PerfilCoordinador>;
-
-      this.perfilForm.patchValue({
-        nombres:
-          perfil.nombres ?? 'Coordinador',
-
-        apellidos:
-          perfil.apellidos ?? 'Académico',
-
-        correo:
-          perfil.correo ??
-          'coordinador@santiagoapostol.edu.pe',
-
-        telefono:
-          perfil.telefono ?? '',
-
-        areaGestion:
-          perfil.areaGestion ?? 'Gestión académica',
-
-        notificacionesCorreo:
-          perfil.notificacionesCorreo ?? true,
-
-        notificacionesSistema:
-          perfil.notificacionesSistema ?? false
-      });
-    } catch {
-      localStorage.removeItem(this.storageKey);
-
-      this.mensajeError =
-        'No se pudieron recuperar los datos guardados anteriormente.';
-    }
+    return problem?.detail ??
+      problem?.title ??
+      fallbackMessage;
   }
 }
