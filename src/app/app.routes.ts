@@ -29,6 +29,7 @@ export const routes: Routes = [
     path: 'alumno',
     component: AlumnoLayout,
     canActivate: [authGuard],
+    data: { role: 'Student' },
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       { path: 'inicio', component: Inicio },
@@ -45,6 +46,7 @@ export const routes: Routes = [
     path: 'docente',
     component: DocenteLayout,
     canActivate: [authGuard],
+    data: { role: 'Teacher' },
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       {
@@ -83,6 +85,7 @@ export const routes: Routes = [
     path: 'coordinador',
     component: CoordinadorLayout,
     canActivate: [authGuard],
+    data: { role: 'Coordinator' },
     children: [
        { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       { path: 'inicio', component: InicioCoordinador },

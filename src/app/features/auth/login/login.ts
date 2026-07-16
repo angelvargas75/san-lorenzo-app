@@ -1,6 +1,14 @@
+﻿import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
+import { ApiProblem } from '../../../core/models/auth.model';
 import { Auth } from '../../../core/services/auth';
 
 @Component({
@@ -10,43 +18,84 @@ import { Auth } from '../../../core/services/auth';
   styleUrl: './login.scss',
 })
 export class Login {
-  loginForm: FormGroup;
-  errorMsg: string = '';
+  readonly loginForm: FormGroup;
+  errorMsg = '';
+  isLoading = false;
 
   constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private auth: Auth
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly auth: Auth,
   ) {
     this.loginForm = this.fb.group({
-      usuario: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(4)]],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email,
+        ],
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8),
+        ],
+      ],
       remember: [false],
     });
   }
 
-  get usuario() { return this.loginForm.get('usuario'); }
-  get password() { return this.loginForm.get('password'); }
+  get email() {
+    return this.loginForm.get('email');
+  }
+
+  get password() {
+    return this.loginForm.get('password');
+  }
 
   login(): void {
+    this.errorMsg = '';
+
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    const user = this.loginForm.value.usuario.trim().toLowerCase();
+    const {
+      email,
+      password,
+      remember,
+    } = this.loginForm.getRawValue();
 
-    if (user.includes('docente')) {
-      this.auth.login('docente');
-      this.router.navigate(['/docente']);
-    } else if (user.includes('alumno')) {
-      this.auth.login('alumno');
-      this.router.navigate(['/alumno']);
-    } else if (user.includes('coordinador')) {
-      this.auth.login('coordinador');
-      this.router.navigate(['/coordinador']);
-    } else {
-      this.errorMsg = "Para probar, use usuarios que contengan: 'docente', 'alumno' o 'coordinador'";
-    }
+    this.isLoading = true;
+
+    this.auth
+      .login(
+        {
+          email: email.trim(),
+          password,
+        },
+        Boolean(remember),
+      )
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          void this.router.navigate([
+            this.auth.getHomeRoute(response.user.role),
+          ]);
+        },
+        error: (error: HttpErrorResponse) => {
+          const problem = error.error as ApiProblem | null;
+
+          this.errorMsg =
+            problem?.detail ??
+            'No fue posible iniciar sesión. Verifique sus credenciales y la conexión con el servidor.';
+        },
+      });
   }
 }
