@@ -3,16 +3,16 @@
 <!-- Tarjetas de estadísticas (StatCards) -->
 <div class="row g-4 mb-5">
   <div class="col-md-3">
-    <app-stat-card label="Promedio General" value="16.5" trend="+0.8"></app-stat-card>
+    <app-stat-card label="Promedio General" [value]="promedio().toString()" trend="+0.8"></app-stat-card>
   </div>
   <div class="col-md-3">
-    <app-stat-card label="Asistencia" value="95%" trend="+2%"></app-stat-card>
+    <app-stat-card label="Asistencia" [value]="asistencia().toString() + '%'" trend="+2%"></app-stat-card>
   </div>
   <div class="col-md-3">
     <app-stat-card label="Tareas Pendientes" value="3" trend="-1" [trendUp]="false"></app-stat-card>
   </div>
   <div class="col-md-3">
-    <app-stat-card label="Cursos" value="8"></app-stat-card>
+    <app-stat-card label="Cursos" [value]="numeroCursos().toString()"></app-stat-card>
   </div>
 </div>
 

@@ -20,7 +20,7 @@ export class Asistencia implements OnInit {
   readonly curso = signal('');
   readonly fecha = signal('');
   readonly cursoId = signal<number>(1); // default courseId, should be dynamic in a real app or selected
-  
+
   readonly alumnos = signal<Alumno[]>([]);
 
   readonly totalPresentes = computed(() => this.alumnos().filter(a => a.presente).length);
