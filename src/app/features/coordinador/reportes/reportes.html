@@ -1,493 +1,658 @@
 <app-page-title titulo="Reportes"></app-page-title>
 
-<div class="reportes-layout">
-  <section class="section-card">
-    <h5 class="section-subtitle">
-      Generar reporte
-    </h5>
+<div class="section-card mb-4">
 
-    @if (mensajeExito) {
-      <div class="alert alert-success">
-        {{ mensajeExito }}
+  <h5 class="section-subtitle">
+    Generar reporte
+  </h5>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+    </div>
+  }
+
+  <form
+    class="report-filter-form"
+    [formGroup]="reportForm"
+    (ngSubmit)="generateReport()"
+  >
+    <div class="mb-3">
+      <label
+        for="reportType"
+        class="form-label"
+      >
+        Tipo de reporte
+      </label>
+
+      <select
+        id="reportType"
+        class="form-select"
+        formControlName="reportType"
+        (change)="onReportTypeChange()"
+      >
+        <option value="Attendance">
+          Asistencia
+        </option>
+
+        <option value="Grades">
+          Calificaciones
+        </option>
+
+        <option value="Users">
+          Usuarios
+        </option>
+      </select>
+    </div>
+
+    @if (selectedType === 'Attendance') {
+      <h5 class="form-section-title">
+        Filtros de asistencia
+      </h5>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label
+            for="startDate"
+            class="form-label"
+          >
+            Fecha inicial
+          </label>
+
+          <input
+            id="startDate"
+            type="date"
+            class="form-control"
+            formControlName="startDate"
+          >
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label
+            for="endDate"
+            class="form-label"
+          >
+            Fecha final
+          </label>
+
+          <input
+            id="endDate"
+            type="date"
+            class="form-control"
+            formControlName="endDate"
+          >
+        </div>
       </div>
-    }
 
-    @if (mensajeError) {
-      <div class="alert alert-danger">
-        {{ mensajeError }}
-      </div>
-    }
-
-    <form
-      class="report-filter-form"
-      [formGroup]="reporteForm"
-      (ngSubmit)="generarReporte()"
-      novalidate
-    >
       <div class="mb-3">
         <label
-          for="tipoReporte"
+          for="attendanceCourseId"
           class="form-label"
         >
-          Tipo de reporte
+          Identificador del curso
         </label>
 
-        <select
-          id="tipoReporte"
-          class="form-select"
-          formControlName="tipoReporte"
+        <input
+          id="attendanceCourseId"
+          type="number"
+          class="form-control"
+          formControlName="courseId"
+          min="1"
+          placeholder="Opcional"
           [class.is-invalid]="
-            controles.tipoReporte.touched &&
-            controles.tipoReporte.invalid
+            reportForm.controls.courseId.invalid &&
+            reportForm.controls.courseId.touched
           "
         >
-          <option value="">
-            Seleccionar tipo
-          </option>
-
-          @for (
-            tipo of tiposReporte;
-            track tipo.value
-          ) {
-            <option [value]="tipo.value">
-              {{ tipo.label }}
-            </option>
-          }
-        </select>
 
         @if (
-          controles.tipoReporte.touched &&
-          controles.tipoReporte.invalid
+          reportForm.controls.courseId.invalid &&
+          reportForm.controls.courseId.touched
         ) {
           <div class="invalid-feedback">
-            Selecciona un tipo de reporte.
+            El identificador debe ser mayor que cero.
           </div>
         }
       </div>
 
-      <div class="filters-grid">
-        <div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
           <label
-            for="grado"
+            for="attendanceGradeLevel"
             class="form-label"
           >
             Grado
           </label>
 
-          <select
-            id="grado"
-            class="form-select"
-            formControlName="grado"
+          <input
+            id="attendanceGradeLevel"
+            type="text"
+            class="form-control"
+            formControlName="gradeLevel"
+            maxlength="20"
+            placeholder="Ejemplo: 5.º secundaria"
           >
-            <option value="">
-              Todos los grados
-            </option>
-
-            @for (grado of grados; track grado) {
-              <option [value]="grado">
-                {{ grado }}
-              </option>
-            }
-          </select>
         </div>
 
-        <div>
+        <div class="col-md-6 mb-3">
           <label
-            for="seccion"
+            for="attendanceSection"
             class="form-label"
           >
             Sección
           </label>
 
-          <select
-            id="seccion"
-            class="form-select"
-            formControlName="seccion"
+          <input
+            id="attendanceSection"
+            type="text"
+            class="form-control"
+            formControlName="section"
+            maxlength="20"
+            placeholder="Ejemplo: A"
           >
-            <option value="">
-              Todas las secciones
-            </option>
-
-            @for (
-              seccion of secciones;
-              track seccion
-            ) {
-              <option [value]="seccion">
-                {{ seccion }}
-              </option>
-            }
-          </select>
-        </div>
-
-        <div>
-          <label
-            for="docenteId"
-            class="form-label"
-          >
-            Docente
-          </label>
-
-          <select
-            id="docenteId"
-            class="form-select"
-            formControlName="docenteId"
-          >
-            <option value="">
-              Todos los docentes
-            </option>
-
-            @for (
-              docente of docentes;
-              track docente.id
-            ) {
-              <option [value]="docente.id">
-                {{ docente.nombre }}
-              </option>
-            }
-          </select>
-        </div>
-
-        <div>
-          <label
-            for="periodo"
-            class="form-label"
-          >
-            Periodo
-          </label>
-
-          <select
-            id="periodo"
-            class="form-select"
-            formControlName="periodo"
-            [class.is-invalid]="
-              controles.periodo.touched &&
-              controles.periodo.invalid
-            "
-          >
-            <option value="">
-              Seleccionar periodo
-            </option>
-
-            @for (
-              periodo of periodos;
-              track periodo
-            ) {
-              <option [value]="periodo">
-                {{ periodo }}
-              </option>
-            }
-          </select>
-
-          @if (
-            controles.periodo.touched &&
-            controles.periodo.invalid
-          ) {
-            <div class="invalid-feedback">
-              Selecciona un periodo.
-            </div>
-          }
         </div>
       </div>
+    }
 
-      <div class="form-actions">
-        <button
-          type="submit"
-          class="btn-primary-custom"
+    @if (selectedType === 'Grades') {
+      <h5 class="form-section-title">
+        Filtros de calificaciones
+      </h5>
+
+      <div class="mb-3">
+        <label
+          for="gradesCourseId"
+          class="form-label"
         >
-          Generar reporte
-        </button>
+          Identificador del curso
+        </label>
 
-        <button
-          type="button"
-          class="btn-secondary-custom"
-          (click)="limpiarFormulario()"
-        >
-          Limpiar
-        </button>
-      </div>
-    </form>
-  </section>
-
-  @if (reporteSeleccionado) {
-    <section
-      id="detalle-reporte"
-      class="section-card"
-    >
-      <div class="section-header">
-        <div>
-          <h5 class="section-subtitle mb-1">
-            Resultado del reporte
-          </h5>
-
-          <p class="section-description">
-            {{
-              etiquetaTipo(
-                reporteSeleccionado.tipoReporte
-              )
-            }}
-            ·
-            {{ obtenerPeriodo(reporteSeleccionado) }}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          class="btn-primary-custom"
-          (click)="
-            descargarReporte(reporteSeleccionado)
+        <input
+          id="gradesCourseId"
+          type="number"
+          class="form-control"
+          formControlName="courseId"
+          min="1"
+          placeholder="Opcional"
+          [class.is-invalid]="
+            reportForm.controls.courseId.invalid &&
+            reportForm.controls.courseId.touched
           "
         >
-          Descargar CSV
-        </button>
+
+        @if (
+          reportForm.controls.courseId.invalid &&
+          reportForm.controls.courseId.touched
+        ) {
+          <div class="invalid-feedback">
+            El identificador debe ser mayor que cero.
+          </div>
+        }
       </div>
 
-      <div class="report-summary">
-        <div class="summary-item">
-          <span class="summary-label">
-            Registros
-          </span>
+      <div class="mb-3">
+        <label
+          for="term"
+          class="form-label"
+        >
+          Periodo académico
+        </label>
 
-          <strong>
-            {{ reporteSeleccionado.resultado.length }}
-          </strong>
-        </div>
+        <select
+          id="term"
+          class="form-select"
+          formControlName="term"
+        >
+          <option value="">
+            Todos los periodos
+          </option>
 
-        <div class="summary-item">
-          <span class="summary-label">
+          <option value="Bimestre 1">
+            Bimestre 1
+          </option>
+
+          <option value="Bimestre 2">
+            Bimestre 2
+          </option>
+
+          <option value="Bimestre 3">
+            Bimestre 3
+          </option>
+
+          <option value="Bimestre 4">
+            Bimestre 4
+          </option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label
+            for="gradesGradeLevel"
+            class="form-label"
+          >
             Grado
-          </span>
+          </label>
 
-          <strong>
-            {{ obtenerGrado(reporteSeleccionado) }}
-          </strong>
+          <input
+            id="gradesGradeLevel"
+            type="text"
+            class="form-control"
+            formControlName="gradeLevel"
+            maxlength="20"
+            placeholder="Ejemplo: 5.º secundaria"
+          >
         </div>
 
-        <div class="summary-item">
-          <span class="summary-label">
+        <div class="col-md-6 mb-3">
+          <label
+            for="gradesSection"
+            class="form-label"
+          >
             Sección
-          </span>
+          </label>
 
-          <strong>
-            {{ obtenerSeccion(reporteSeleccionado) }}
-          </strong>
-        </div>
-
-        <div class="summary-item">
-          <span class="summary-label">
-            Docente
-          </span>
-
-          <strong>
-            {{ obtenerDocente(reporteSeleccionado) }}
-          </strong>
+          <input
+            id="gradesSection"
+            type="text"
+            class="form-control"
+            formControlName="section"
+            maxlength="20"
+            placeholder="Ejemplo: A"
+          >
         </div>
       </div>
+    }
 
-      <div class="table-responsive">
-        <table class="table custom-table">
-          <thead>
-            <tr>
-              @for (
-                columna of columnasResultado(
-                  reporteSeleccionado
-                );
-                track columna
-              ) {
-                <th>
-                  {{ formatearClave(columna) }}
-                </th>
-              }
-            </tr>
-          </thead>
+    @if (selectedType === 'Users') {
+      <h5 class="form-section-title">
+        Filtros de usuarios
+      </h5>
 
-          <tbody>
-            @for (
-              registro of reporteSeleccionado.resultado;
-              track $index
-            ) {
-              <tr>
-                @for (
-                  columna of columnasResultado(
-                    reporteSeleccionado
-                  );
-                  track columna
-                ) {
-                  <td>
-                    {{
-                      formatearValor(
-                        registro[columna]
-                      )
-                    }}
-                  </td>
-                }
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="mb-3">
+        <label
+          for="userRole"
+          class="form-label"
+        >
+          Rol
+        </label>
+
+        <select
+          id="userRole"
+          class="form-select"
+          formControlName="userRole"
+        >
+          <option value="">
+            Todos los roles
+          </option>
+
+          <option value="Student">
+            Estudiantes
+          </option>
+
+          <option value="Teacher">
+            Docentes
+          </option>
+
+          <option value="Coordinator">
+            Coordinadores
+          </option>
+        </select>
       </div>
-    </section>
-  }
 
-  <section class="section-card">
-    <h5 class="section-subtitle">
-      Historial de reportes
-    </h5>
+      <div class="mb-4">
+        <label
+          for="isActive"
+          class="form-label"
+        >
+          Estado del usuario
+        </label>
 
-    <form
-      class="history-filters"
-      [formGroup]="historialForm"
+        <select
+          id="isActive"
+          class="form-select"
+          formControlName="isActive"
+        >
+          <option value="">
+            Activos e inactivos
+          </option>
+
+          <option value="true">
+            Solo activos
+          </option>
+
+          <option value="false">
+            Solo inactivos
+          </option>
+        </select>
+      </div>
+    }
+
+    <button
+      type="submit"
+      class="btn-primary-custom"
+      [disabled]="isGenerating"
+    >
+      {{
+        isGenerating
+          ? 'Generando...'
+          : 'Generar reporte'
+      }}
+    </button>
+  </form>
+</div>
+
+@if (isLoadingDetail) {
+  <div class="section-card mb-4">
+    <div class="alert alert-info mb-0">
+      Cargando detalle del reporte...
+    </div>
+  </div>
+}
+
+@if (currentReport) {
+  <div class="section-card mb-4">
+
+    <div
+      class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3"
     >
       <div>
-        <label
-          for="filtroTipoReporte"
-          class="form-label"
-        >
-          Tipo
-        </label>
+        <h5 class="section-subtitle mb-1">
+          Resultado:
+          {{
+            reportTypeLabel(
+              currentReport.reportType
+            )
+          }}
+        </h5>
 
-        <select
-          id="filtroTipoReporte"
-          class="form-select"
-          formControlName="tipoReporte"
-        >
-          <option value="">
-            Todos
-          </option>
-
-          @for (
-            tipo of tiposReporte;
-            track tipo.value
-          ) {
-            <option [value]="tipo.value">
-              {{ tipo.label }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <div>
-        <label
-          for="filtroPeriodo"
-          class="form-label"
-        >
-          Periodo
-        </label>
-
-        <select
-          id="filtroPeriodo"
-          class="form-select"
-          formControlName="periodo"
-        >
-          <option value="">
-            Todos
-          </option>
-
-          @for (
-            periodo of periodos;
-            track periodo
-          ) {
-            <option [value]="periodo">
-              {{ periodo }}
-            </option>
-          }
-        </select>
+        <span class="text-muted">
+          Generado el
+          {{
+            currentReport.generatedAt
+              | date:'dd/MM/yyyy HH:mm'
+          }}
+        </span>
       </div>
 
       <button
         type="button"
-        class="btn-secondary-custom filter-button"
-        (click)="limpiarFiltros()"
+        class="btn btn-outline-secondary btn-sm"
+        (click)="closeReport()"
       >
-        Limpiar filtros
+        Cerrar resultado
       </button>
-    </form>
+    </div>
 
-    @if (reportesFiltrados.length === 0) {
-      <div class="empty-state">
-        No existen reportes generados.
-      </div>
-    } @else {
-      <div class="table-responsive">
-        <table class="table custom-table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Periodo</th>
-              <th>Grado</th>
-              <th>Registros</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            @for (
-              reporte of reportesFiltrados;
-              track reporte.reporteId
-            ) {
+    @if (
+      currentReport.reportType ===
+      'Attendance'
+    ) {
+      @if (attendanceRows.length === 0) {
+        <div class="alert alert-secondary">
+          El reporte no contiene registros de asistencia.
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table
+            class="table table-borderless align-middle custom-table"
+          >
+            <thead>
               <tr>
-                <td>
-                  {{
-                    formatearFecha(
-                      reporte.fechaGeneracion
-                    )
-                  }}
-                </td>
-
-                <td>
-                  <span class="type-badge">
-                    {{
-                      etiquetaTipo(
-                        reporte.tipoReporte
-                      )
-                    }}
-                  </span>
-                </td>
-
-                <td>
-                  {{ obtenerPeriodo(reporte) }}
-                </td>
-
-                <td>
-                  {{ obtenerGrado(reporte) }}
-                </td>
-
-                <td>
-                  {{ reporte.resultado.length }}
-                </td>
-
-                <td>
-                  <div class="table-actions">
-                    <button
-                      type="button"
-                      class="action-link action-button"
-                      (click)="seleccionarReporte(reporte)"
-                    >
-                      Ver
-                    </button>
-
-                    <button
-                      type="button"
-                      class="action-link action-button"
-                      (click)="descargarReporte(reporte)"
-                    >
-                      Descargar
-                    </button>
-
-                    <button
-                      type="button"
-                      class="action-link action-button delete-link"
-                      (click)="eliminarReporte(reporte)"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </td>
+                <th>Curso</th>
+                <th>Grado</th>
+                <th>Sección</th>
+                <th>Fecha</th>
+                <th>Presentes</th>
+                <th>Ausentes</th>
+                <th>Total</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              @for (
+                row of attendanceRows;
+                track
+                  row.courseId +
+                  '-' +
+                  row.date
+              ) {
+                <tr>
+                  <td>{{ row.courseName }}</td>
+                  <td>{{ row.gradeLevel }}</td>
+                  <td>{{ row.section }}</td>
+                  <td>
+                    {{
+                      row.date
+                        | date:'dd/MM/yyyy'
+                    }}
+                  </td>
+                  <td>{{ row.presentCount }}</td>
+                  <td>{{ row.absentCount }}</td>
+                  <td>{{ row.totalCount }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     }
-  </section>
+
+    @if (
+      currentReport.reportType ===
+      'Grades'
+    ) {
+      @if (gradesRows.length === 0) {
+        <div class="alert alert-secondary">
+          El reporte no contiene registros de calificaciones.
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table
+            class="table table-borderless align-middle custom-table"
+          >
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Grado</th>
+                <th>Sección</th>
+                <th>Periodo</th>
+                <th>Estudiantes</th>
+                <th>Promedio</th>
+                <th>Aprobados</th>
+                <th>Desaprobados</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (
+                row of gradesRows;
+                track
+                  row.courseId +
+                  '-' +
+                  row.term
+              ) {
+                <tr>
+                  <td>{{ row.courseName }}</td>
+                  <td>{{ row.gradeLevel }}</td>
+                  <td>{{ row.section }}</td>
+                  <td>{{ row.term }}</td>
+                  <td>{{ row.studentCount }}</td>
+                  <td>
+                    {{
+                      row.averageGrade
+                        | number:'1.2-2'
+                    }}
+                  </td>
+                  <td>{{ row.passedCount }}</td>
+                  <td>{{ row.failedCount }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    @if (
+      currentReport.reportType ===
+      'Users'
+    ) {
+      @if (usersRows.length === 0) {
+        <div class="alert alert-secondary">
+          El reporte no contiene registros de usuarios.
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table
+            class="table table-borderless align-middle custom-table"
+          >
+            <thead>
+              <tr>
+                <th>Rol</th>
+                <th>Activos</th>
+                <th>Inactivos</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (
+                row of usersRows;
+                track row.role
+              ) {
+                <tr>
+                  <td>
+                    {{ roleLabel(row.role) }}
+                  </td>
+                  <td>{{ row.activeCount }}</td>
+                  <td>{{ row.inactiveCount }}</td>
+                  <td>{{ row.totalCount }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+}
+
+<div class="section-card">
+
+  <div
+    class="d-flex justify-content-between align-items-end gap-3 flex-wrap mb-3"
+  >
+    <div>
+      <h5 class="section-subtitle mb-1">
+        Historial de reportes
+      </h5>
+
+      <span class="text-muted">
+        Consulte los reportes generados anteriormente.
+      </span>
+    </div>
+
+    <div>
+      <label
+        for="historyReportType"
+        class="form-label"
+      >
+        Filtrar por tipo
+      </label>
+
+      <select
+        id="historyReportType"
+        class="form-select"
+        [value]="selectedReportType"
+        (change)="onHistoryFilterChange($event)"
+      >
+        <option value="">
+          Todos
+        </option>
+
+        <option value="Attendance">
+          Asistencia
+        </option>
+
+        <option value="Grades">
+          Calificaciones
+        </option>
+
+        <option value="Users">
+          Usuarios
+        </option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoadingHistory) {
+    <div class="alert alert-info">
+      Cargando historial de reportes...
+    </div>
+  } @else if (reports.length === 0) {
+    <div class="alert alert-secondary">
+      No se encontraron reportes generados.
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table
+        class="table table-borderless align-middle custom-table"
+      >
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Fecha de generación</th>
+            <th class="text-end">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (
+            report of reports;
+            track report.id
+          ) {
+            <tr>
+              <td>{{ report.id }}</td>
+
+              <td>
+                {{
+                  reportTypeLabel(
+                    report.reportType
+                  )
+                }}
+              </td>
+
+              <td>
+                {{
+                  report.generatedAt
+                    | date:'dd/MM/yyyy HH:mm'
+                }}
+              </td>
+
+              <td class="text-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  [disabled]="isLoadingDetail"
+                  (click)="viewReport(report.id)"
+                >
+                  Ver resultado
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 </div>

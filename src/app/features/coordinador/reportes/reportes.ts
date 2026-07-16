@@ -1,583 +1,445 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import {
-  FormBuilder,
+  FormControl,
+  FormGroup,
   ReactiveFormsModule,
-  Validators
+  Validators,
 } from '@angular/forms';
+import { finalize } from 'rxjs';
 
-import { PageTitle } from '../../../shared/components/page-title/page-title';
+import { ApiProblem, UserRole } from '../../../core/models/auth.model';
 import {
-  FiltroReporte,
-  ReporteDetalle,
-  TipoReporte
-} from '../models/reporte.model';
-
-interface DocenteOpcion {
-  id: number;
-  nombre: string;
-}
+  AttendanceCoordinatorReportRow,
+  CoordinatorReport,
+  CoordinatorReportSummary,
+  CoordinatorReportType,
+  GenerateCoordinatorReportRequest,
+  GradesCoordinatorReportRow,
+  UsersCoordinatorReportRow,
+} from '../../../core/models/coordinator-report.model';
+import {
+  CoordinatorReportService,
+} from '../../../core/services/coordinator-report.service';
+import {
+  PageTitle,
+} from '../../../shared/components/page-title/page-title';
 
 @Component({
   selector: 'app-reportes',
   imports: [
+    CommonModule,
+    ReactiveFormsModule,
     PageTitle,
-    ReactiveFormsModule
   ],
   templateUrl: './reportes.html',
   styleUrl: './reportes.scss',
 })
 export class Reportes implements OnInit {
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly storageKey = 'reportes-coordinador';
-
-  readonly tiposReporte: {
-    value: TipoReporte;
-    label: string;
-  }[] = [
-    {
-      value: 'ASISTENCIA',
-      label: 'Asistencia'
-    },
-    {
-      value: 'CALIFICACIONES',
-      label: 'Calificaciones'
-    },
-    {
-      value: 'USUARIOS',
-      label: 'Usuarios'
-    }
-  ];
-
-  readonly grados = [
-    'Primero de primaria',
-    'Segundo de primaria',
-    'Tercero de primaria',
-    'Cuarto de primaria',
-    'Quinto de primaria',
-    'Sexto de primaria',
-    'Primero de secundaria',
-    'Segundo de secundaria',
-    'Tercero de secundaria',
-    'Cuarto de secundaria',
-    'Quinto de secundaria'
-  ];
-
-  readonly secciones = [
-    'A',
-    'B',
-    'C'
-  ];
-
-  readonly periodos = [
-    'Bimestre 1',
-    'Bimestre 2',
-    'Bimestre 3',
-    'Bimestre 4',
-    'Año académico 2026'
-  ];
-
-  readonly docentes: DocenteOpcion[] = [
-    {
-      id: 1,
-      nombre: 'Prof. Ana Torres'
-    },
-    {
-      id: 2,
-      nombre: 'Prof. Carlos Ruiz'
-    },
-    {
-      id: 3,
-      nombre: 'Prof. Laura Gómez'
-    },
-    {
-      id: 4,
-      nombre: 'Prof. Miguel Sánchez'
-    }
-  ];
-
-  reportes: ReporteDetalle[] = [];
-  reporteSeleccionado: ReporteDetalle | null = null;
-
-  mensajeExito = '';
-  mensajeError = '';
-
-  readonly reporteForm = this.formBuilder.nonNullable.group({
-    tipoReporte: [
-      '' as TipoReporte | '',
-      Validators.required
-    ],
-
-    grado: [''],
-    seccion: [''],
-    docenteId: [''],
-
-    periodo: [
+  readonly reportForm = new FormGroup({
+    reportType: new FormControl<CoordinatorReportType>(
+      'Attendance',
+      {
+        nonNullable: true,
+        validators: [Validators.required],
+      },
+    ),
+    startDate: new FormControl<string>('', {
+      nonNullable: true,
+    }),
+    endDate: new FormControl<string>('', {
+      nonNullable: true,
+    }),
+    courseId: new FormControl<number | null>(
+      null,
+      [
+        Validators.min(1),
+      ],
+    ),
+    term: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [
+        Validators.maxLength(50),
+      ],
+    }),
+    gradeLevel: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [
+        Validators.maxLength(20),
+      ],
+    }),
+    section: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [
+        Validators.maxLength(20),
+      ],
+    }),
+    userRole: new FormControl<UserRole | ''>(
       '',
-      Validators.required
-    ]
+      {
+        nonNullable: true,
+      },
+    ),
+    isActive: new FormControl<
+      'true' | 'false' | ''
+    >(
+      '',
+      {
+        nonNullable: true,
+      },
+    ),
   });
 
-  readonly historialForm = this.formBuilder.nonNullable.group({
-    tipoReporte: ['' as TipoReporte | ''],
-    periodo: ['']
-  });
+  reports: CoordinatorReportSummary[] = [];
+  currentReport: CoordinatorReport | null = null;
+
+  selectedReportType:
+    CoordinatorReportType | '' = '';
+
+  isGenerating = false;
+  isLoadingHistory = false;
+  isLoadingDetail = false;
+
+  errorMessage = '';
+  successMessage = '';
+
+  constructor(
+    private readonly reportService:
+      CoordinatorReportService,
+  ) {}
 
   ngOnInit(): void {
-    this.cargarReportesTemporales();
+    this.loadReports();
   }
 
-  get controles() {
-    return this.reporteForm.controls;
+  get selectedType(): CoordinatorReportType {
+    return this.reportForm.controls.reportType.value;
   }
 
-  get reportesFiltrados(): ReporteDetalle[] {
-    const filtros = this.historialForm.getRawValue();
-
-    return [...this.reportes]
-      .filter((reporte) => {
-        const coincideTipo =
-          !filtros.tipoReporte ||
-          reporte.tipoReporte === filtros.tipoReporte;
-
-        const coincidePeriodo =
-          !filtros.periodo ||
-          this.obtenerPeriodo(reporte) === filtros.periodo;
-
-        return coincideTipo && coincidePeriodo;
-      })
-      .sort((a, b) => {
-        return (
-          new Date(b.fechaGeneracion).getTime() -
-          new Date(a.fechaGeneracion).getTime()
-        );
-      });
-  }
-
-  generarReporte(): void {
-    this.mensajeExito = '';
-    this.mensajeError = '';
-
-    if (this.reporteForm.invalid) {
-      this.reporteForm.markAllAsTouched();
-
-      this.mensajeError =
-        'Selecciona el tipo de reporte y el periodo.';
-
-      return;
-    }
-
-    const datos = this.reporteForm.getRawValue();
-
-    const docenteId =
-      datos.docenteId === ''
-        ? null
-        : Number(datos.docenteId);
-
-    const filtros: FiltroReporte = {
-      tipoReporte: datos.tipoReporte as TipoReporte,
-      grado: datos.grado || null,
-      seccion: datos.seccion || null,
-      docenteId,
-      periodo: datos.periodo,
-      generadoPorUsuarioId: 1
-    };
-
-    const nuevoReporte: ReporteDetalle = {
-      reporteId: this.generarId(),
-      tipoReporte: filtros.tipoReporte,
-      generadoPorUsuarioId:
-        filtros.generadoPorUsuarioId,
-      fechaGeneracion: new Date().toISOString(),
-
-      filtros: {
-        tipoReporte: filtros.tipoReporte,
-        grado: filtros.grado,
-        seccion: filtros.seccion,
-        docenteId: filtros.docenteId,
-        periodo: filtros.periodo,
-        generadoPorUsuarioId:
-          filtros.generadoPorUsuarioId
-      },
-
-      resultado: this.generarResultadoSimulado(
-        filtros
-      )
-    };
-
-    this.reportes.push(nuevoReporte);
-    this.reporteSeleccionado = nuevoReporte;
-
-    this.guardarEnLocalStorage();
-
-    this.mensajeExito =
-      'El reporte se generó correctamente.';
-  }
-
-  seleccionarReporte(
-    reporte: ReporteDetalle
-  ): void {
-    this.reporteSeleccionado = reporte;
-    this.mensajeExito = '';
-    this.mensajeError = '';
-
-    setTimeout(() => {
-      document
-        .getElementById('detalle-reporte')
-        ?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-    });
-  }
-
-  descargarReporte(
-    reporte: ReporteDetalle
-  ): void {
-    if (reporte.resultado.length === 0) {
-      this.mensajeError =
-        'El reporte no contiene información para descargar.';
-
-      return;
-    }
-
-    const columnas = Object.keys(
-      reporte.resultado[0]
-    );
-
-    const encabezado = columnas
-      .map((columna) =>
-        this.escaparCsv(
-          this.formatearClave(columna)
-        )
-      )
-      .join(',');
-
-    const filas = reporte.resultado.map(
-      (registro) =>
-        columnas
-          .map((columna) =>
-            this.escaparCsv(
-              this.formatearValor(
-                registro[columna]
-              )
-            )
-          )
-          .join(',')
-    );
-
-    const contenidoCsv = [
-      encabezado,
-      ...filas
-    ].join('\r\n');
-
-    const blob = new Blob(
-      [
-        '\uFEFF',
-        contenidoCsv
-      ],
-      {
-        type: 'text/csv;charset=utf-8'
-      }
-    );
-
-    const url = URL.createObjectURL(blob);
-    const enlace = document.createElement('a');
-
-    enlace.href = url;
-    enlace.download =
-      `reporte-${reporte.tipoReporte.toLowerCase()}-${reporte.reporteId}.csv`;
-
-    document.body.appendChild(enlace);
-    enlace.click();
-    enlace.remove();
-
-    URL.revokeObjectURL(url);
-
-    this.mensajeExito =
-      'El reporte fue descargado en formato CSV.';
-  }
-
-  eliminarReporte(
-    reporte: ReporteDetalle
-  ): void {
-    this.reportes = this.reportes.filter(
-      (elemento) =>
-        elemento.reporteId !== reporte.reporteId
-    );
-
+  get attendanceRows():
+    AttendanceCoordinatorReportRow[] {
     if (
-      this.reporteSeleccionado?.reporteId ===
-      reporte.reporteId
+      this.currentReport?.reportType !==
+      'Attendance'
     ) {
-      this.reporteSeleccionado = null;
-    }
-
-    this.guardarEnLocalStorage();
-
-    this.mensajeExito =
-      'El reporte fue eliminado del historial.';
-  }
-
-  limpiarFormulario(): void {
-    this.reporteForm.reset({
-      tipoReporte: '',
-      grado: '',
-      seccion: '',
-      docenteId: '',
-      periodo: ''
-    });
-
-    this.mensajeError = '';
-  }
-
-  limpiarFiltros(): void {
-    this.historialForm.reset({
-      tipoReporte: '',
-      periodo: ''
-    });
-  }
-
-  etiquetaTipo(
-    tipoReporte: TipoReporte
-  ): string {
-    return this.tiposReporte.find(
-      (tipo) => tipo.value === tipoReporte
-    )?.label ?? tipoReporte;
-  }
-
-  obtenerPeriodo(
-    reporte: ReporteDetalle
-  ): string {
-    const periodo =
-      reporte.filtros['periodo'];
-
-    return typeof periodo === 'string'
-      ? periodo
-      : 'Sin periodo';
-  }
-
-  obtenerGrado(
-    reporte: ReporteDetalle
-  ): string {
-    const grado =
-      reporte.filtros['grado'];
-
-    return typeof grado === 'string' &&
-      grado.trim().length > 0
-      ? grado
-      : 'Todos';
-  }
-
-  obtenerSeccion(
-    reporte: ReporteDetalle
-  ): string {
-    const seccion =
-      reporte.filtros['seccion'];
-
-    return typeof seccion === 'string' &&
-      seccion.trim().length > 0
-      ? seccion
-      : 'Todas';
-  }
-
-  obtenerDocente(
-    reporte: ReporteDetalle
-  ): string {
-    const docenteId =
-      reporte.filtros['docenteId'];
-
-    if (typeof docenteId !== 'number') {
-      return 'Todos';
-    }
-
-    return this.docentes.find(
-      (docente) => docente.id === docenteId
-    )?.nombre ?? 'Docente no identificado';
-  }
-
-  formatearFecha(
-    fecha: string
-  ): string {
-    return new Intl.DateTimeFormat(
-      'es-PE',
-      {
-        dateStyle: 'short',
-        timeStyle: 'short'
-      }
-    ).format(new Date(fecha));
-  }
-
-  columnasResultado(
-    reporte: ReporteDetalle
-  ): string[] {
-    if (reporte.resultado.length === 0) {
       return [];
     }
 
-    return Object.keys(
-      reporte.resultado[0]
-    );
+    return this.currentReport.result as
+      AttendanceCoordinatorReportRow[];
   }
 
-  formatearClave(
-    clave: string
-  ): string {
-    const texto = clave
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/_/g, ' ')
-      .trim();
-
-    return texto.charAt(0).toUpperCase() +
-      texto.slice(1);
-  }
-
-  formatearValor(
-    valor: unknown
-  ): string {
-    if (valor === null || valor === undefined) {
-      return '-';
+  get gradesRows():
+    GradesCoordinatorReportRow[] {
+    if (
+      this.currentReport?.reportType !==
+      'Grades'
+    ) {
+      return [];
     }
 
-    if (typeof valor === 'boolean') {
-      return valor ? 'Sí' : 'No';
-    }
-
-    return String(valor);
+    return this.currentReport.result as
+      GradesCoordinatorReportRow[];
   }
 
-  private generarResultadoSimulado(
-    filtros: FiltroReporte
-  ): Record<string, unknown>[] {
-    switch (filtros.tipoReporte) {
-      case 'ASISTENCIA':
-        return [
-          {
-            estudiante: 'María López',
-            grado: filtros.grado ?? 'Todos',
-            seccion: filtros.seccion ?? 'Todas',
-            asistencias: 38,
-            tardanzas: 2,
-            faltas: 1,
-            porcentajeAsistencia: '92.7%'
-          },
-          {
-            estudiante: 'José Ramírez',
-            grado: filtros.grado ?? 'Todos',
-            seccion: filtros.seccion ?? 'Todas',
-            asistencias: 40,
-            tardanzas: 1,
-            faltas: 0,
-            porcentajeAsistencia: '97.6%'
-          },
-          {
-            estudiante: 'Lucía Fernández',
-            grado: filtros.grado ?? 'Todos',
-            seccion: filtros.seccion ?? 'Todas',
-            asistencias: 36,
-            tardanzas: 2,
-            faltas: 3,
-            porcentajeAsistencia: '87.8%'
-          }
-        ];
-
-      case 'CALIFICACIONES':
-        return [
-          {
-            estudiante: 'María López',
-            curso: 'Matemática',
-            promedio: 17,
-            estado: 'Aprobado'
-          },
-          {
-            estudiante: 'José Ramírez',
-            curso: 'Comunicación',
-            promedio: 15,
-            estado: 'Aprobado'
-          },
-          {
-            estudiante: 'Lucía Fernández',
-            curso: 'Ciencia y Tecnología',
-            promedio: 13,
-            estado: 'Aprobado'
-          }
-        ];
-
-      case 'USUARIOS':
-        return [
-          {
-            nombreCompleto: 'Ana Torres',
-            rol: 'Docente',
-            estado: 'Activo',
-            ultimoAcceso: '13/07/2026 08:15'
-          },
-          {
-            nombreCompleto: 'Carlos Ruiz',
-            rol: 'Docente',
-            estado: 'Activo',
-            ultimoAcceso: '13/07/2026 09:30'
-          },
-          {
-            nombreCompleto: 'María López',
-            rol: 'Estudiante',
-            estado: 'Activo',
-            ultimoAcceso: '12/07/2026 18:20'
-          },
-          {
-            nombreCompleto: 'José Ramírez',
-            rol: 'Estudiante',
-            estado: 'Inactivo',
-            ultimoAcceso: '05/07/2026 16:05'
-          }
-        ];
+  get usersRows():
+    UsersCoordinatorReportRow[] {
+    if (
+      this.currentReport?.reportType !==
+      'Users'
+    ) {
+      return [];
     }
+
+    return this.currentReport.result as
+      UsersCoordinatorReportRow[];
   }
 
-  private cargarReportesTemporales(): void {
-    const datosGuardados =
-      localStorage.getItem(this.storageKey);
+  onReportTypeChange(): void {
+    const reportType =
+      this.reportForm.controls.reportType.value;
 
-    if (!datosGuardados) {
+    this.reportForm.reset({
+      reportType,
+      startDate: '',
+      endDate: '',
+      courseId: null,
+      term: '',
+      gradeLevel: '',
+      section: '',
+      userRole: '',
+      isActive: '',
+    });
+
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  onHistoryFilterChange(
+    event: Event,
+  ): void {
+    const element =
+      event.target as HTMLSelectElement;
+
+    this.selectedReportType =
+      element.value as
+        CoordinatorReportType | '';
+
+    this.loadReports();
+  }
+
+  loadReports(): void {
+    this.isLoadingHistory = true;
+    this.errorMessage = '';
+
+    const reportType =
+      this.selectedReportType === ''
+        ? undefined
+        : this.selectedReportType;
+
+    this.reportService
+      .getReports(reportType)
+      .pipe(
+        finalize(() => {
+          this.isLoadingHistory = false;
+        }),
+      )
+      .subscribe({
+        next: (reports) => {
+          this.reports = reports;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage =
+            this.getErrorMessage(
+              error,
+              'No fue posible cargar el historial de reportes.',
+            );
+        },
+      });
+  }
+
+  generateReport(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (this.reportForm.invalid) {
+      this.reportForm.markAllAsTouched();
       return;
     }
 
-    try {
-      const datos =
-        JSON.parse(datosGuardados) as ReporteDetalle[];
+    const formValue =
+      this.reportForm.getRawValue();
 
-      this.reportes =
-        Array.isArray(datos) ? datos : [];
-    } catch {
-      localStorage.removeItem(this.storageKey);
-
-      this.mensajeError =
-        'No se pudo recuperar el historial de reportes.';
-    }
-  }
-
-  private guardarEnLocalStorage(): void {
-    localStorage.setItem(
-      this.storageKey,
-      JSON.stringify(this.reportes)
-    );
-  }
-
-  private generarId(): number {
-    const mayorId = Math.max(
-      0,
-      ...this.reportes.map(
-        (reporte) => reporte.reporteId
+    if (
+      formValue.courseId !== null &&
+      (
+        !Number.isInteger(formValue.courseId) ||
+        formValue.courseId <= 0
       )
-    );
+    ) {
+      this.errorMessage =
+        'El identificador del curso debe ser un número entero mayor que cero.';
+      return;
+    }
 
-    return mayorId + 1;
+    if (
+      formValue.reportType ===
+        'Attendance' &&
+      formValue.startDate &&
+      formValue.endDate &&
+      formValue.startDate >
+        formValue.endDate
+    ) {
+      this.errorMessage =
+        'La fecha inicial no puede ser posterior a la fecha final.';
+      return;
+    }
+
+    const request =
+      this.buildRequest();
+
+    this.isGenerating = true;
+
+    this.reportService
+      .generateReport(request)
+      .pipe(
+        finalize(() => {
+          this.isGenerating = false;
+        }),
+      )
+      .subscribe({
+        next: (report) => {
+          this.currentReport = report;
+          this.successMessage =
+            'El reporte se generó correctamente.';
+
+          this.loadReports();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage =
+            this.getErrorMessage(
+              error,
+              'No fue posible generar el reporte.',
+            );
+        },
+      });
   }
 
-  private escaparCsv(
-    valor: string
-  ): string {
-    const valorEscapado =
-      valor.replace(/"/g, '""');
+  viewReport(id: number): void {
+    this.isLoadingDetail = true;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    return `"${valorEscapado}"`;
+    this.reportService
+      .getReportById(id)
+      .pipe(
+        finalize(() => {
+          this.isLoadingDetail = false;
+        }),
+      )
+      .subscribe({
+        next: (report) => {
+          this.currentReport = report;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage =
+            this.getErrorMessage(
+              error,
+              'No fue posible consultar el reporte.',
+            );
+        },
+      });
+  }
+
+  closeReport(): void {
+    this.currentReport = null;
+  }
+
+  reportTypeLabel(
+    reportType: CoordinatorReportType,
+  ): string {
+    const labels:
+      Record<CoordinatorReportType, string> = {
+        Attendance: 'Asistencia',
+        Grades: 'Calificaciones',
+        Users: 'Usuarios',
+      };
+
+    return labels[reportType];
+  }
+
+  roleLabel(role: UserRole): string {
+    const labels:
+      Record<UserRole, string> = {
+        Student: 'Estudiante',
+        Teacher: 'Docente',
+        Coordinator: 'Coordinador',
+      };
+
+    return labels[role];
+  }
+
+  private buildRequest():
+    GenerateCoordinatorReportRequest {
+    const formValue =
+      this.reportForm.getRawValue();
+
+    const request:
+      GenerateCoordinatorReportRequest = {
+        reportType: formValue.reportType,
+        startDate: null,
+        endDate: null,
+        courseId: null,
+        term: null,
+        gradeLevel: null,
+        section: null,
+        userRole: null,
+        isActive: null,
+      };
+
+    if (
+      formValue.reportType ===
+      'Attendance'
+    ) {
+      request.startDate =
+        formValue.startDate || null;
+
+      request.endDate =
+        formValue.endDate || null;
+
+      request.courseId =
+        formValue.courseId;
+
+      request.gradeLevel =
+        this.normalizeText(
+          formValue.gradeLevel,
+        );
+
+      request.section =
+        this.normalizeText(
+          formValue.section,
+        );
+    }
+
+    if (
+      formValue.reportType ===
+      'Grades'
+    ) {
+      request.courseId =
+        formValue.courseId;
+
+      request.term =
+        this.normalizeText(
+          formValue.term,
+        );
+
+      request.gradeLevel =
+        this.normalizeText(
+          formValue.gradeLevel,
+        );
+
+      request.section =
+        this.normalizeText(
+          formValue.section,
+        );
+    }
+
+    if (
+      formValue.reportType ===
+      'Users'
+    ) {
+      request.userRole =
+        formValue.userRole || null;
+
+      request.isActive =
+        formValue.isActive === ''
+          ? null
+          : formValue.isActive ===
+            'true';
+    }
+
+    return request;
+  }
+
+  private normalizeText(
+    value: string,
+  ): string | null {
+    const normalized =
+      value.trim();
+
+    return normalized || null;
+  }
+
+  private getErrorMessage(
+    error: HttpErrorResponse,
+    fallbackMessage: string,
+  ): string {
+    const problem =
+      error.error as ApiProblem | null;
+
+    return problem?.detail ??
+      problem?.title ??
+      fallbackMessage;
   }
 }
