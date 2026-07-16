@@ -1,265 +1,221 @@
-<app-page-title
-  titulo="Configuración del sistema">
-</app-page-title>
+<app-page-title titulo="Configuración del sistema"></app-page-title>
 
 <div class="section-card">
+
+  @if (isLoading) {
+    <div class="alert alert-info">
+      Cargando configuración institucional...
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+    </div>
+  }
+
   <form
     class="form-wrapper"
-    [formGroup]="configuracionForm"
-    (ngSubmit)="guardarConfiguracion()"
-    novalidate>
-
-    @if (mensajeExito) {
-      <div
-        class="alert alert-success"
-        role="alert">
-        {{ mensajeExito }}
-      </div>
-    }
-
-    @if (mensajeError) {
-      <div
-        class="alert alert-danger"
-        role="alert">
-        {{ mensajeError }}
-      </div>
-    }
-
+    [formGroup]="configurationForm"
+    (ngSubmit)="saveConfiguration()"
+  >
     <h5 class="section-subtitle">
       Configuración general
     </h5>
 
     <div class="mb-3">
       <label
-        for="nombreInstitucion"
-        class="form-label">
-        Nombre del colegio
+        for="institutionName"
+        class="form-label"
+      >
+        Nombre de la institución
       </label>
 
       <input
-        id="nombreInstitucion"
+        id="institutionName"
         type="text"
         class="form-control"
-        formControlName="nombreInstitucion"
+        formControlName="institutionName"
         [class.is-invalid]="
-          controles.nombreInstitucion.touched &&
-          controles.nombreInstitucion.invalid
-        ">
+          configurationForm.controls.institutionName.invalid &&
+          configurationForm.controls.institutionName.touched
+        "
+      >
 
       @if (
-        controles.nombreInstitucion.touched &&
-        controles.nombreInstitucion.hasError('required')
+        configurationForm.controls.institutionName.invalid &&
+        configurationForm.controls.institutionName.touched
       ) {
         <div class="invalid-feedback">
-          El nombre del colegio es obligatorio.
-        </div>
-      }
-
-      @if (
-        controles.nombreInstitucion.touched &&
-        controles.nombreInstitucion.hasError('minlength')
-      ) {
-        <div class="invalid-feedback">
-          El nombre debe contener al menos 3 caracteres.
-        </div>
-      }
-
-      @if (
-        controles.nombreInstitucion.touched &&
-        controles.nombreInstitucion.hasError('maxlength')
-      ) {
-        <div class="invalid-feedback">
-          El nombre no puede superar los 150 caracteres.
+          Ingrese el nombre de la institución.
         </div>
       }
     </div>
 
     <div class="mb-3">
       <label
-        for="anioAcademico"
-        class="form-label">
-        Año académico actual
+        for="academicYear"
+        class="form-label"
+      >
+        Año académico
       </label>
 
       <input
-        id="anioAcademico"
+        id="academicYear"
         type="number"
         class="form-control"
-        formControlName="anioAcademico"
-        min="2020"
+        formControlName="academicYear"
+        min="2000"
         max="2100"
         [class.is-invalid]="
-          controles.anioAcademico.touched &&
-          controles.anioAcademico.invalid
-        ">
+          configurationForm.controls.academicYear.invalid &&
+          configurationForm.controls.academicYear.touched
+        "
+      >
 
       @if (
-        controles.anioAcademico.touched &&
-        controles.anioAcademico.invalid
+        configurationForm.controls.academicYear.invalid &&
+        configurationForm.controls.academicYear.touched
       ) {
         <div class="invalid-feedback">
-          Ingrese un año entre 2020 y 2100.
+          El año debe encontrarse entre 2000 y 2100.
         </div>
       }
     </div>
 
-    <div class="mb-4">
+    <div class="mb-3">
       <label
-        for="periodoAcademico"
-        class="form-label">
-        Periodo académico actual
+        for="academicPeriod"
+        class="form-label"
+      >
+        Periodo académico
       </label>
 
       <select
-        id="periodoAcademico"
+        id="academicPeriod"
         class="form-select"
-        formControlName="periodoAcademico"
+        formControlName="academicPeriod"
         [class.is-invalid]="
-          controles.periodoAcademico.touched &&
-          controles.periodoAcademico.invalid
-        ">
-
+          configurationForm.controls.academicPeriod.invalid &&
+          configurationForm.controls.academicPeriod.touched
+        "
+      >
         <option value="">
           Seleccione un periodo
         </option>
-
-        <option value="Primer bimestre">
-          Primer bimestre
-        </option>
-
-        <option value="Segundo bimestre">
-          Segundo bimestre
-        </option>
-
-        <option value="Tercer bimestre">
-          Tercer bimestre
-        </option>
-
-        <option value="Cuarto bimestre">
-          Cuarto bimestre
-        </option>
+        <option value="Bimestre 1">Bimestre 1</option>
+        <option value="Bimestre 2">Bimestre 2</option>
+        <option value="Bimestre 3">Bimestre 3</option>
+        <option value="Bimestre 4">Bimestre 4</option>
       </select>
 
       @if (
-        controles.periodoAcademico.touched &&
-        controles.periodoAcademico.invalid
+        configurationForm.controls.academicPeriod.invalid &&
+        configurationForm.controls.academicPeriod.touched
       ) {
         <div class="invalid-feedback">
-          Seleccione un periodo académico.
+          Seleccione el periodo académico.
         </div>
       }
     </div>
 
-    <h5 class="section-subtitle">
-      Configuración de seguridad
-    </h5>
-
-    <div class="mb-3">
-      <label
-        for="rol"
-        class="form-label">
-        Rol
-      </label>
-
-      <input
-        id="rol"
-        type="text"
-        class="form-control"
-        value="Coordinador académico"
-        readonly>
-    </div>
-
-    <div class="mb-4">
-      <label
-        for="permisos"
-        class="form-label">
-        Permisos
-      </label>
-
-      <input
-        id="permisos"
-        type="text"
-        class="form-control"
-        value="Gestión académica, reportes y comunicados"
-        readonly>
-
-      <div class="form-text">
-        Los permisos se administrarán desde el módulo de usuarios.
-      </div>
-    </div>
-
-    <h5 class="section-subtitle">
+    <h5 class="form-section-title">
       Parámetros de asistencia
     </h5>
 
     <div class="mb-3">
       <label
-        for="umbralInasistencias"
-        class="form-label">
-        Umbral de faltas injustificadas
+        for="attendanceToleranceMinutes"
+        class="form-label"
+      >
+        Tolerancia de tardanza en minutos
       </label>
 
       <input
-        id="umbralInasistencias"
+        id="attendanceToleranceMinutes"
         type="number"
         class="form-control"
-        formControlName="umbralInasistencias"
+        formControlName="attendanceToleranceMinutes"
+        min="0"
+        max="120"
+        [class.is-invalid]="
+          configurationForm.controls.attendanceToleranceMinutes.invalid &&
+          configurationForm.controls.attendanceToleranceMinutes.touched
+        "
+      >
+
+      @if (
+        configurationForm.controls.attendanceToleranceMinutes.invalid &&
+        configurationForm.controls.attendanceToleranceMinutes.touched
+      ) {
+        <div class="invalid-feedback">
+          La tolerancia debe encontrarse entre 0 y 120 minutos.
+        </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label
+        for="absenceAlertPercentage"
+        class="form-label"
+      >
+        Porcentaje de alerta por inasistencias
+      </label>
+
+      <input
+        id="absenceAlertPercentage"
+        type="number"
+        class="form-control"
+        formControlName="absenceAlertPercentage"
         min="0"
         max="100"
         [class.is-invalid]="
-          controles.umbralInasistencias.touched &&
-          controles.umbralInasistencias.invalid
-        ">
+          configurationForm.controls.absenceAlertPercentage.invalid &&
+          configurationForm.controls.absenceAlertPercentage.touched
+        "
+      >
 
       @if (
-        controles.umbralInasistencias.touched &&
-        controles.umbralInasistencias.invalid
+        configurationForm.controls.absenceAlertPercentage.invalid &&
+        configurationForm.controls.absenceAlertPercentage.touched
       ) {
         <div class="invalid-feedback">
-          Ingrese un valor entre 0 y 100.
+          El porcentaje debe encontrarse entre 0 y 100.
         </div>
       }
     </div>
 
     <div class="mb-4">
       <label
-        for="toleranciaMinutos"
-        class="form-label">
-        Tolerancia de tardanza en minutos
+        for="timeZone"
+        class="form-label"
+      >
+        Zona horaria
       </label>
 
-      <input
-        id="toleranciaMinutos"
-        type="number"
-        class="form-control"
-        formControlName="toleranciaMinutos"
-        min="0"
-        max="120"
-        [class.is-invalid]="
-          controles.toleranciaMinutos.touched &&
-          controles.toleranciaMinutos.invalid
-        ">
-
-      @if (
-        controles.toleranciaMinutos.touched &&
-        controles.toleranciaMinutos.invalid
-      ) {
-        <div class="invalid-feedback">
-          Ingrese un valor entre 0 y 120 minutos.
-        </div>
-      }
+      <select
+        id="timeZone"
+        class="form-select"
+        formControlName="timeZone"
+      >
+        <option value="America/Lima">
+          America/Lima
+        </option>
+      </select>
     </div>
 
     <button
       type="submit"
       class="btn-primary-custom"
-      [disabled]="guardando">
-
-      @if (guardando) {
-        Guardando...
-      } @else {
-        Guardar cambios
-      }
+      [disabled]="isLoading || isSaving"
+    >
+      {{ isSaving ? 'Guardando...' : 'Guardar cambios' }}
     </button>
   </form>
 </div>

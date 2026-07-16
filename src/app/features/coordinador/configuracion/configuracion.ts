@@ -1,159 +1,185 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
-  Validators
+  Validators,
 } from '@angular/forms';
-
+import { finalize } from 'rxjs';
+import { ApiProblem } from '../../../core/models/auth.model';
+import {
+  UpdateInstitutionalConfigurationRequest,
+} from '../../../core/models/coordinator-configuration.model';
+import {
+  CoordinatorConfigurationService,
+} from '../../../core/services/coordinator-configuration.service';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
-import { ConfiguracionInstitucional } from '../models/configuracion.model';
 
 @Component({
   selector: 'app-configuracion',
   imports: [
     PageTitle,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   templateUrl: './configuracion.html',
-  styleUrl: './configuracion.scss'
+  styleUrl: './configuracion.scss',
 })
 export class Configuracion implements OnInit {
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly storageKey = 'configuracion-institucional';
+  readonly configurationForm;
 
-  guardando = false;
-  mensajeExito = '';
-  mensajeError = '';
+  isLoading = false;
+  isSaving = false;
+  errorMessage = '';
+  successMessage = '';
 
-  readonly configuracionForm = this.formBuilder.nonNullable.group({
-    nombreInstitucion: [
-      'IEP Santiago Apóstol',
-      [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(150)
-      ]
-    ],
-
-    anioAcademico: [
-      2026,
-      [
-        Validators.required,
-        Validators.min(2020),
-        Validators.max(2100)
-      ]
-    ],
-
-    periodoAcademico: [
-      'Segundo bimestre',
-      Validators.required
-    ],
-
-    toleranciaMinutos: [
-      10,
-      [
-        Validators.required,
-        Validators.min(0),
-        Validators.max(120)
-      ]
-    ],
-
-    umbralInasistencias: [
-      3,
-      [
-        Validators.required,
-        Validators.min(0),
-        Validators.max(100)
-      ]
-    ]
-  });
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly configurationService:
+      CoordinatorConfigurationService,
+  ) {
+    this.configurationForm = this.formBuilder.nonNullable.group({
+      institutionName: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(150),
+        ],
+      ],
+      academicYear: [
+        new Date().getFullYear(),
+        [
+          Validators.required,
+          Validators.min(2000),
+          Validators.max(2100),
+        ],
+      ],
+      academicPeriod: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(50),
+        ],
+      ],
+      attendanceToleranceMinutes: [
+        10,
+        [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(120),
+        ],
+      ],
+      absenceAlertPercentage: [
+        30,
+        [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(100),
+        ],
+      ],
+      timeZone: [
+        'America/Lima',
+        [
+          Validators.required,
+          Validators.maxLength(100),
+        ],
+      ],
+    });
+  }
 
   ngOnInit(): void {
-    this.cargarConfiguracionTemporal();
+    this.loadConfiguration();
   }
 
-  get controles() {
-    return this.configuracionForm.controls;
+  loadConfiguration(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.configurationService
+      .getConfiguration()
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: (configuration) => {
+          this.configurationForm.patchValue({
+            institutionName: configuration.institutionName,
+            academicYear: configuration.academicYear,
+            academicPeriod: configuration.academicPeriod,
+            attendanceToleranceMinutes:
+              configuration.attendanceToleranceMinutes,
+            absenceAlertPercentage:
+              configuration.absenceAlertPercentage,
+            timeZone: configuration.timeZone,
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.getErrorMessage(
+            error,
+            'No fue posible cargar la configuración institucional.',
+          );
+        },
+      });
   }
 
-  guardarConfiguracion(): void {
-    this.mensajeExito = '';
-    this.mensajeError = '';
+  saveConfiguration(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    if (this.configuracionForm.invalid) {
-      this.configuracionForm.markAllAsTouched();
-      this.mensajeError =
-        'Revise los campos marcados antes de guardar.';
+    if (this.configurationForm.invalid) {
+      this.configurationForm.markAllAsTouched();
       return;
     }
 
-    this.guardando = true;
+    const request:
+      UpdateInstitutionalConfigurationRequest =
+      this.configurationForm.getRawValue();
 
-    const configuracion: ConfiguracionInstitucional = {
-      configuracionId: 1,
-      ...this.configuracionForm.getRawValue(),
-      fechaActualizacion: new Date().toISOString()
-    };
+    this.isSaving = true;
 
-    try {
-      localStorage.setItem(
-        this.storageKey,
-        JSON.stringify(configuracion)
-      );
+    this.configurationService
+      .updateConfiguration(request)
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+        }),
+      )
+      .subscribe({
+        next: (configuration) => {
+          this.configurationForm.patchValue({
+            institutionName: configuration.institutionName,
+            academicYear: configuration.academicYear,
+            academicPeriod: configuration.academicPeriod,
+            attendanceToleranceMinutes:
+              configuration.attendanceToleranceMinutes,
+            absenceAlertPercentage:
+              configuration.absenceAlertPercentage,
+            timeZone: configuration.timeZone,
+          });
 
-      this.mensajeExito =
-        'Configuración guardada correctamente de manera temporal.';
-    } catch (error) {
-      console.error(
-        'No se pudo guardar la configuración:',
-        error
-      );
-
-      this.mensajeError =
-        'No se pudo guardar la configuración.';
-    } finally {
-      this.guardando = false;
-    }
+          this.configurationForm.markAsPristine();
+          this.successMessage =
+            'La configuración se guardó correctamente.';
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.getErrorMessage(
+            error,
+            'No fue posible guardar la configuración.',
+          );
+        },
+      });
   }
 
-  private cargarConfiguracionTemporal(): void {
-    try {
-      const configuracionGuardada =
-        localStorage.getItem(this.storageKey);
+  private getErrorMessage(
+    error: HttpErrorResponse,
+    fallbackMessage: string,
+  ): string {
+    const problem = error.error as ApiProblem | null;
 
-      if (!configuracionGuardada) {
-        return;
-      }
-
-      const configuracion =
-        JSON.parse(
-          configuracionGuardada
-        ) as ConfiguracionInstitucional;
-
-      this.configuracionForm.patchValue({
-        nombreInstitucion:
-          configuracion.nombreInstitucion,
-
-        anioAcademico:
-          configuracion.anioAcademico,
-
-        periodoAcademico:
-          configuracion.periodoAcademico,
-
-        toleranciaMinutos:
-          configuracion.toleranciaMinutos,
-
-        umbralInasistencias:
-          configuracion.umbralInasistencias
-      });
-    } catch (error) {
-      console.error(
-        'No se pudo cargar la configuración:',
-        error
-      );
-
-      this.mensajeError =
-        'No se pudo recuperar la configuración guardada.';
-    }
+    return problem?.detail ??
+      problem?.title ??
+      fallbackMessage;
   }
 }
