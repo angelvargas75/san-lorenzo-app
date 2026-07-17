@@ -6,38 +6,37 @@
   <form class="report-filter-form">
     <div class="mb-3">
       <label class="form-label">Grado</label>
-      <select class="form-select">
-        <option selected>Seleccionar grado</option>
-        <option>1ro de Secundaria</option>
-        <option>2do de Secundaria</option>
-        <option>3ro de Secundaria</option>
-        <option>4to de Secundaria</option>
-        <option>5to de Secundaria</option>
+      <select class="form-select" [(ngModel)]="gradoSeleccionado" name="grado">
+        <option value="" disabled selected>Seleccionar grado</option>
+        @for (grado of grados(); track grado) {
+          <option [value]="grado">{{ grado }}</option>
+        }
       </select>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Docente</label>
-      <select class="form-select">
-        <option selected>Seleccionar docente</option>
-        <option>Prof. Ana Torres</option>
-        <option>Prof. Carlos Ruiz</option>
-        <option>Prof. Laura Gómez</option>
+      <select class="form-select" [(ngModel)]="docenteSeleccionadoId" name="docente">
+        <option [ngValue]="null">Todos / Seleccionar docente</option>
+        @for (docente of docentes(); track docente.id) {
+          <option [ngValue]="docente.id">{{ docente.fullName }}</option>
+        }
       </select>
     </div>
 
     <div class="mb-4">
       <label class="form-label">Periodo</label>
-      <select class="form-select">
-        <option selected>Seleccionar periodo</option>
-        <option>Bimestre 1</option>
-        <option>Bimestre 2</option>
-        <option>Bimestre 3</option>
-        <option>Bimestre 4</option>
+      <select class="form-select" [(ngModel)]="periodoSeleccionado" name="periodo">
+        <option value="" disabled selected>Seleccionar periodo</option>
+        @for (periodo of periodos; track periodo) {
+          <option [value]="periodo">{{ periodo }}</option>
+        }
       </select>
     </div>
 
-    <button type="button" class="btn-primary-custom">Generar reporte</button>
+    <button type="button" class="btn-primary-custom" [disabled]="generando()" (click)="generarReporte()">
+      {{ generando() ? 'Generando...' : 'Generar reporte' }}
+    </button>
   </form>
 
   <h5 class="section-subtitle mt-5">Historial de reportes</h5>
@@ -54,27 +53,27 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>2026-06-20</td>
-          <td>5to Secundaria</td>
-          <td>Prof. Ana Torres</td>
-          <td>Bimestre 2</td>
-          <td><a href="#" class="action-link">Descargar</a></td>
-        </tr>
-        <tr>
-          <td>2026-06-18</td>
-          <td>4to Secundaria</td>
-          <td>Prof. Carlos Ruiz</td>
-          <td>Bimestre 2</td>
-          <td><a href="#" class="action-link">Descargar</a></td>
-        </tr>
-        <tr>
-          <td>2026-06-15</td>
-          <td>3ro Secundaria</td>
-          <td>Prof. Laura Gómez</td>
-          <td>Bimestre 2</td>
-          <td><a href="#" class="action-link">Descargar</a></td>
-        </tr>
+        @if (loading()) {
+          <tr><td colspan="5" class="text-muted">Cargando historial...</td></tr>
+        } @else if (error()) {
+          <tr><td colspan="5" class="text-danger">No se pudo cargar el historial.</td></tr>
+        } @else if (reportes().length === 0) {
+          <tr><td colspan="5" class="text-muted">Aún no se han generado reportes.</td></tr>
+        } @else {
+          @for (reporte of reportes(); track reporte.id) {
+            <tr>
+              <td>{{ reporte.generatedAt | date:'yyyy-MM-dd' }}</td>
+              <td>{{ reporte.gradeLevel }}</td>
+              <td>{{ reporte.teacherName ?? 'Todos' }}</td>
+              <td>{{ reporte.term }}</td>
+              <td>
+                <a role="button" class="action-link" (click)="descargarReporte(reporte.id)">
+                  {{ descargandoId() === reporte.id ? 'Descargando...' : 'Descargar' }}
+                </a>
+              </td>
+            </tr>
+          }
+        }
       </tbody>
     </table>
   </div>

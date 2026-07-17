@@ -5,40 +5,43 @@
 <h6 class="fw-bold mb-3">Accesos Rápidos</h6>
 <div class="d-flex gap-3 mb-5 flex-wrap">
     <button class="btn btn-primary">Generar Reporte</button>
-<button class="btn btn-secondary">Administrar Tareas</button>
+    <button class="btn btn-secondary">Administrar Tareas</button>
 </div>
 
 <h6 class="fw-bold mb-3">Resumen</h6>
-<div class="row g-4 mb-5">
-    <div class="col-md-3">
-        <div class="summary-card">
-            <div class="card-label">% Cumplimiento de Notas</div>
-            <div class="card-value">95%</div>
-            <div class="trend-up">+5%</div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="summary-card">
-            <div class="card-label">Total Alumnos Matriculados</div>
-            <div class="card-value">520</div>
-            <div class="trend-up">+10</div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="summary-card">
-            <div class="card-label">Docentes Activos</div>
-            <div class="card-value">35</div>
-            <div class="trend-down">-2</div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="summary-card">
-            <div class="card-label">Promedio de Asistencia Hoy</div>
-            <div class="card-value">92%</div>
-            <div class="trend-up">+3%</div>
-        </div>
-    </div>
-</div>
+
+@if (loading()) {
+  <p class="text-muted">Cargando resumen...</p>
+} @else if (error()) {
+  <p class="text-danger">No se pudo cargar el resumen. Intenta de nuevo.</p>
+} @else {
+  <div class="row g-4 mb-5">
+      <div class="col-md-3">
+          <div class="summary-card">
+              <div class="card-label">% Cumplimiento de Notas</div>
+              <div class="card-value">{{ cumplimientoNotas() }}%</div>
+          </div>
+      </div>
+      <div class="col-md-3">
+          <div class="summary-card">
+              <div class="card-label">Total Alumnos Matriculados</div>
+              <div class="card-value">{{ totalAlumnos() }}</div>
+          </div>
+      </div>
+      <div class="col-md-3">
+          <div class="summary-card">
+              <div class="card-label">Docentes Activos</div>
+              <div class="card-value">{{ docentesActivos() }}</div>
+          </div>
+      </div>
+      <div class="col-md-3">
+          <div class="summary-card">
+              <div class="card-label">Promedio de Asistencia Hoy</div>
+              <div class="card-value">{{ asistenciaHoy() }}%</div>
+          </div>
+      </div>
+  </div>
+}
 
 <h6 class="fw-bold mb-3">Tendencias</h6>
 <div class="row gy-4">

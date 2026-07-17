@@ -7,26 +7,75 @@
     <div class="table-responsive-wrapper">
         <table class="table mb-0">
             <thead>
-                <tr><th class="ps-3">Nombre</th><th>Descripción</th><th>Acciones</th></tr>
+                <tr><th class="ps-3">Nombre</th><th>Docente</th><th>Grado</th><th>Sección</th><th>Acciones</th></tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="ps-3 fw-medium">Matemáticas</td>
-                    <td class="text-muted small">Curso de matemáticas para estudiantes de secundaria.</td>
-                    <td class="text-primary fw-bold small">Editar | Eliminar</td>
-                </tr>
-                <tr>
-                    <td class="ps-3 fw-medium">Ciencias Naturales</td>
-                    <td class="text-muted small">Curso de ciencias naturales que abarca biología...</td>
-                    <td class="text-primary fw-bold small">Editar | Eliminar</td>
-                </tr>
+                @if (loadingCursos()) {
+                  <tr><td colspan="5" class="text-muted ps-3">Cargando cursos...</td></tr>
+                } @else if (errorCursos()) {
+                  <tr><td colspan="5" class="text-danger ps-3">No se pudieron cargar los cursos.</td></tr>
+                } @else if (cursos().length === 0) {
+                  <tr><td colspan="5" class="text-muted ps-3">No hay cursos registrados.</td></tr>
+                } @else {
+                  @for (curso of cursos(); track curso.id) {
+                    <tr>
+                        <td class="ps-3 fw-medium">{{ curso.nombre }}</td>
+                        <td class="text-muted small">{{ curso.docente }}</td>
+                        <td class="text-primary small">{{ curso.grado }}</td>
+                        <td class="text-primary small">{{ curso.seccion }}</td>
+                        <td class="text-primary fw-bold small">
+                          <a role="button" (click)="abrirFormEditarCurso(curso)">Editar</a> |
+                          <a role="button" (click)="eliminarCurso(curso.id)">Eliminar</a>
+                        </td>
+                    </tr>
+                  }
+                }
             </tbody>
         </table>
     </div>
 </div>
-<button class="btn btn-primary">Crear Curso</button>
+<button class="btn btn-primary mb-3" (click)="abrirFormNuevoCurso()">Crear Curso</button>
 
-<h6 class="fw-bold mb-3">Asignaturas</h6>
+@if (mostrarFormCurso()) {
+  <div class="card border-1 shadow-sm rounded-3 p-3 mb-5">
+    <h6 class="fw-bold mb-3">{{ editandoCursoId() ? 'Editar Curso' : 'Nuevo Curso' }}</h6>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label small">Nombre</label>
+        <input type="text" class="form-control" [(ngModel)]="formCurso.name">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Grado</label>
+        <input type="text" class="form-control" [(ngModel)]="formCurso.gradeLevel" placeholder="5to">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Sección</label>
+        <input type="text" class="form-control" [(ngModel)]="formCurso.section" placeholder="A">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">Docente</label>
+        <select class="form-control" [(ngModel)]="formCurso.teacherId">
+          <option [value]="0" disabled>Seleccionar...</option>
+          @for (d of docentes(); track d.id) {
+            <option [value]="d.id">{{ d.fullName }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-1">
+        <label class="form-label small">Color</label>
+        <input type="color" class="form-control form-control-color" [(ngModel)]="formCurso.color">
+      </div>
+    </div>
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-primary" (click)="guardarCurso()">Guardar</button>
+      <button class="btn btn-secondary" (click)="cancelarFormCurso()">Cancelar</button>
+    </div>
+  </div>
+}
+
+<!-- ASIGNATURAS: sin endpoint disponible en el backend actual. Pendiente de confirmar con Sebastián
+     si este concepto se fusionó con "Cursos" o falta implementarlo. Datos de ejemplo, no reales. -->
+<h6 class="fw-bold mb-3">Asignaturas <span class="badge bg-warning text-dark small">Pendiente de backend</span></h6>
 <div class="card border-1 shadow-sm rounded-3 p-0 mb-3">
     <div class="table-responsive-wrapper">
         <table class="table mb-0">
@@ -40,19 +89,26 @@
         </table>
     </div>
 </div>
-<button class="btn btn-primary">Crear Asignatura</button>
+<button class="btn btn-primary" disabled title="Sin endpoint disponible">Crear Asignatura</button>
 
-<h6 class="fw-bold mb-3">Grados y Secciones</h6>
+<h6 class="fw-bold mb-3 mt-4">Grados y Secciones <span class="badge bg-secondary small">Solo lectura</span></h6>
 <div class="card border-1 shadow-sm rounded-3 p-0 mb-3">
     <div class="table-responsive-wrapper">
         <table class="table mb-0">
             <thead>
-                <tr><th class="ps-3">Grado</th><th>Sección</th><th>Acciones</th></tr>
+                <tr><th class="ps-3">Grado</th><th>Sección</th></tr>
             </thead>
             <tbody>
-                <tr><td class="ps-3 fw-medium">1ro de Secundaria</td><td class="text-primary small">A</td><td class="text-primary fw-bold small">Editar | Eliminar</td></tr>
+                @if (loadingGrados()) {
+                  <tr><td colspan="2" class="text-muted ps-3">Cargando...</td></tr>
+                } @else if (errorGrados()) {
+                  <tr><td colspan="2" class="text-danger ps-3">No se pudo cargar la lista.</td></tr>
+                } @else {
+                  @for (gs of gradosSecciones(); track gs.gradeLevel + gs.section) {
+                    <tr><td class="ps-3 fw-medium">{{ gs.gradeLevel }}</td><td class="text-primary small">{{ gs.section }}</td></tr>
+                  }
+                }
             </tbody>
         </table>
     </div>
 </div>
-<button class="btn btn-primary">Crear Grado y Sección</button>
