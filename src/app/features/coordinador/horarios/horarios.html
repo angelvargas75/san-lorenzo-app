@@ -1,39 +1,98 @@
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h1 class="page-title mb-0">Horarios</h1>
-    <button class="btn btn-primary">Crear Horario</button>
+    <button class="btn btn-primary" (click)="abrirFormNuevo()">Crear Horario</button>
 </div>
 
 <div class="mb-4">
-    <input type="text" class="form-control" placeholder="Buscar horarios" style="background-color: #F3F4F6;">
+    <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar horarios (por nombre de curso)"
+        style="background-color: #F3F4F6;"
+        [ngModel]="busqueda()"
+        (ngModelChange)="busqueda.set($event)">
 </div>
 
-<div class="card border-1 shadow-sm rounded-3 p-0 overflow-auto">
-    <div class="table-responsive-wrapper">
-        <table class="table mb-0 text-center">
-            <thead>
-                <tr>
-                    <th class="text-start ps-3">Hora</th>
-                    <th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th>
-                </tr>
-            </thead>
-            <tbody class="small text-muted">
-                <tr>
-                    <td class="text-start ps-3 fw-bold text-dark">8:00 AM</td>
-                    <td class="text-primary">Matemáticas - 10A</td><td class="text-primary">Historia - 10B</td><td class="text-primary">Ciencias - 10A</td><td class="text-primary">Matemáticas - 10B</td><td class="text-primary">Historia - 10A</td>
-                </tr>
-                <tr>
-                    <td class="text-start ps-3 fw-bold text-dark">9:00 AM</td>
-                    <td class="text-primary">Matemáticas - 10A</td><td class="text-primary">Historia - 10B</td><td class="text-primary">Ciencias - 10A</td><td class="text-primary">Matemáticas - 10B</td><td class="text-primary">Historia - 10A</td>
-                </tr>
-                <tr>
-                    <td class="text-start ps-3 fw-bold text-dark">10:00 AM</td>
-                    <td colspan="5">Descanso</td>
-                </tr>
-                 <tr>
-                    <td class="text-start ps-3 fw-bold text-dark">10:30 AM</td>
-                    <td class="text-primary">Lenguaje - 10B</td><td class="text-primary">Matemáticas - 10A</td><td class="text-primary">Historia - 10B</td><td class="text-primary">Ciencias - 10A</td><td class="text-primary">Matemáticas - 10B</td>
-                </tr>
-            </tbody>
-        </table>
+@if (loading()) {
+  <p class="text-muted">Cargando horarios...</p>
+} @else if (error()) {
+  <p class="text-danger">No se pudieron cargar los horarios.</p>
+} @else if (horasUnicas().length === 0) {
+  <p class="text-muted">No hay horarios registrados todavía.</p>
+} @else {
+  <div class="card border-1 shadow-sm rounded-3 p-0 overflow-auto">
+      <div class="table-responsive-wrapper">
+          <table class="table mb-0 text-center">
+              <thead>
+                  <tr>
+                      <th class="text-start ps-3">Hora</th>
+                      @for (dia of dias; track dia) {
+                        <th>{{ dia }}</th>
+                      }
+                  </tr>
+              </thead>
+              <tbody class="small text-muted">
+                  @for (hora of horasUnicas(); track hora) {
+                    <tr>
+                        <td class="text-start ps-3 fw-bold text-dark">{{ formatearHora(hora) }}</td>
+                        @for (dia of dias; track dia; let i = $index) {
+                          <td>
+                            @if (obtenerSlot(hora, i); as slot) {
+                              <span class="text-primary" role="button" (click)="eliminarHorario(slot.id, $event)" title="Click para eliminar">
+                                {{ slot.courseName }} - {{ slot.gradeLevel }}{{ slot.section }}
+                              </span>
+                            } @else {
+                              <span class="text-muted">—</span>
+                            }
+                          </td>
+                        }
+                    </tr>
+                  }
+              </tbody>
+          </table>
+      </div>
+  </div>
+}
+
+@if (mostrarForm()) {
+  <div class="card border-1 shadow-sm rounded-3 p-3 mt-4">
+    <h6 class="fw-bold mb-3">Nuevo Horario</h6>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label small">Curso</label>
+        <select class="form-control" [(ngModel)]="formHorario.courseId">
+          <option [value]="0" disabled>Seleccionar...</option>
+          @for (c of cursos(); track c.id) {
+            <option [value]="c.id">{{ c.name }} - {{ c.gradeLevel }}{{ c.section }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Día</label>
+        <select class="form-control" [(ngModel)]="formHorario.dayOfWeek">
+          <option [value]="1">Lunes</option>
+          <option [value]="2">Martes</option>
+          <option [value]="3">Miércoles</option>
+          <option [value]="4">Jueves</option>
+          <option [value]="5">Viernes</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Hora inicio</label>
+        <input type="time" class="form-control" [(ngModel)]="formHorario.startTime">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Hora fin</label>
+        <input type="time" class="form-control" [(ngModel)]="formHorario.endTime">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Ícono</label>
+        <input type="text" class="form-control" [(ngModel)]="formHorario.icon" placeholder="book">
+      </div>
     </div>
-</div>
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-primary" (click)="guardarHorario()">Guardar</button>
+      <button class="btn btn-secondary" (click)="cancelarForm()">Cancelar</button>
+    </div>
+  </div>
+}

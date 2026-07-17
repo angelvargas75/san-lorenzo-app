@@ -1,10 +1,16 @@
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h1 class="page-title mb-0">Usuarios</h1>
-    <button class="btn btn-primary">Nuevo Usuario</button>
+    <button class="btn btn-primary" (click)="nuevoUsuario()">Nuevo Usuario</button>
 </div>
 
 <div class="mb-4">
-    <input type="text" class="form-control" placeholder="Buscar usuarios" style="background-color: #F3F4F6;">
+    <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar usuarios"
+        style="background-color: #F3F4F6;"
+        [ngModel]="busqueda()"
+        (ngModelChange)="onBuscar($event)">
 </div>
 
 <div class="card border-1 shadow-sm rounded-3 p-2">
@@ -19,36 +25,26 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="ps-3 fw-bold">Carlos Mendoza</td>
-                    <td class="text-primary fw-medium">Profesor</td>
-                    <td class="text-center"><span class="status-pill">Activo</span></td>
-                    <td class="text-primary fw-bold small">Editar</td>
-                </tr>
-                <tr>
-                    <td class="ps-3 fw-bold">Ana Torres</td>
-                    <td class="text-primary fw-medium">Administrativo</td>
-                    <td class="text-center"><span class="status-pill">Activo</span></td>
-                    <td class="text-primary fw-bold small">Editar</td>
-                </tr>
-                <tr>
-                    <td class="ps-3 fw-bold">Luis Ramirez</td>
-                    <td class="text-primary fw-medium">Estudiante</td>
-                    <td class="text-center"><span class="status-pill">Inactivo</span></td>
-                    <td class="text-primary fw-bold small">Editar</td>
-                </tr>
-                <tr>
-                    <td class="ps-3 fw-bold">Sofia Vargas</td>
-                    <td class="text-primary fw-medium">Profesor</td>
-                    <td class="text-center"><span class="status-pill">Activo</span></td>
-                    <td class="text-primary fw-bold small">Editar</td>
-                </tr>
-                <tr>
-                    <td class="ps-3 fw-bold">Diego Flores</td>
-                    <td class="text-primary fw-medium">Administrativo</td>
-                    <td class="text-center"><span class="status-pill">Inactivo</span></td>
-                    <td class="text-primary fw-bold small">Editar</td>
-                </tr>
+                @if (loading()) {
+                  <tr><td colspan="4" class="text-muted ps-3">Cargando usuarios...</td></tr>
+                } @else if (error()) {
+                  <tr><td colspan="4" class="text-danger ps-3">No se pudo cargar la lista de usuarios.</td></tr>
+                } @else if (usuarios().length === 0) {
+                  <tr><td colspan="4" class="text-muted ps-3">No se encontraron usuarios.</td></tr>
+                } @else {
+                  @for (usuario of usuarios(); track usuario.id) {
+                    <tr>
+                        <td class="ps-3 fw-bold">{{ usuario.nombre }}</td>
+                        <td class="text-primary fw-medium">{{ usuario.rol }}</td>
+                        <td class="text-center">
+                          <span class="status-pill">{{ usuario.activo ? 'Activo' : 'Inactivo' }}</span>
+                        </td>
+                        <td class="text-primary fw-bold small">
+                          <a role="button" (click)="editarUsuario(usuario.id)">Editar</a>
+                        </td>
+                    </tr>
+                  }
+                }
             </tbody>
         </table>
     </div>
