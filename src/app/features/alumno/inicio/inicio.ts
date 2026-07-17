@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
 import { StatCard } from '../../../shared/components/stat-card/stat-card';
-import { AlumnoApi, CourseSummary } from '../alumno-api.ts';
+import { AlumnoApi, CourseGrade, StudentAssignment } from '../alumno-api';
 
 @Component({
   selector: 'app-inicio',
@@ -9,16 +9,20 @@ import { AlumnoApi, CourseSummary } from '../alumno-api.ts';
   templateUrl: './inicio.html',
   styleUrl: './inicio.scss',
 })
-export class Inicio {
+export class Inicio implements OnInit {
   private readonly api = inject(AlumnoApi);
 
   readonly promedio = signal(0);
   readonly asistencia = signal(0);
-  readonly tareas = signal(0);
   readonly numeroCursos = signal(0);
-  readonly cursos = signal<CourseSummary[]>([]);
+  readonly cursos = signal<CourseGrade[]>([]);
+  readonly tareas = signal<StudentAssignment[]>([]);
   readonly loading = signal(true);
   readonly error = signal(false);
+
+  readonly pendientes = computed(() =>
+    this.tareas().filter((t) => t.status === 'pendiente'),
+  );
 
   ngOnInit(): void {
     this.api.getDashboard().subscribe({
@@ -33,6 +37,10 @@ export class Inicio {
         this.error.set(true);
         this.loading.set(false);
       },
+    });
+
+    this.api.getAssignments().subscribe({
+      next: (list) => this.tareas.set(list),
     });
   }
 }
