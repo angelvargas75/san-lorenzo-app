@@ -1,57 +1,68 @@
 <app-page-title titulo="Configuración del sistema"></app-page-title>
 
-<div class="section-card">
-  <form class="form-wrapper">
-    <h5 class="section-subtitle">Configuración general</h5>
+@if (loading()) {
+  <p class="text-muted">Cargando configuración...</p>
+} @else if (error()) {
+  <p class="text-danger">No se pudo cargar la configuración. Intenta de nuevo.</p>
+} @else {
+  <div class="section-card">
+    <form class="form-wrapper" (ngSubmit)="guardarCambios()">
+      <h5 class="section-subtitle">Configuración general</h5>
 
-    <div class="mb-3">
-      <label class="form-label">Nombre del colegio</label>
-      <input type="text" class="form-control" value="IEP Santiago Apóstol">
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Nombre del colegio</label>
+        <input type="text" class="form-control" name="schoolName" [(ngModel)]="formulario.schoolName" required>
+      </div>
 
-    <div class="mb-3">
-      <label class="form-label">Año académico actual</label>
-      <input type="text" class="form-control" value="2026">
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Año académico actual</label>
+        <input type="number" class="form-control" name="academicYear" [(ngModel)]="formulario.academicYear" required>
+      </div>
 
-    <div class="mb-4">
-      <label class="form-label">Periodo académico actual</label>
-      <select class="form-select">
-        <option selected>Bimestre 2</option>
-        <option>Bimestre 1</option>
-        <option>Bimestre 3</option>
-        <option>Bimestre 4</option>
-      </select>
-    </div>
+      <div class="mb-4">
+        <label class="form-label">Periodo académico actual</label>
+        <select class="form-select" name="currentTerm" [(ngModel)]="formulario.currentTerm" required>
+          <option value="Bimestre 1">Bimestre 1</option>
+          <option value="Bimestre 2">Bimestre 2</option>
+          <option value="Bimestre 3">Bimestre 3</option>
+          <option value="Bimestre 4">Bimestre 4</option>
+          <option value="Trimestre 1">Trimestre 1</option>
+          <option value="Trimestre 2">Trimestre 2</option>
+          <option value="Trimestre 3">Trimestre 3</option>
+        </select>
+      </div>
 
-    <h5 class="section-subtitle">Configuración de seguridad</h5>
+      <h5 class="section-subtitle">Configuración de seguridad</h5>
 
-    <div class="mb-3">
-      <label class="form-label">Rol</label>
-      <select class="form-select">
-        <option selected>Coordinador académico</option>
-        <option>Administrativo</option>
-        <option>Docente</option>
-      </select>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Rol</label>
+        <select class="form-select" disabled>
+          <option selected>Coordinador académico</option>
+          <option>Administrativo</option>
+          <option>Docente</option>
+        </select>
+      </div>
 
-    <div class="mb-4">
-      <label class="form-label">Permisos</label>
-      <input type="text" class="form-control" value="Gestión académica, reportes y comunicados">
-    </div>
+      <div class="mb-4">
+        <label class="form-label">Permisos</label>
+        <input type="text" class="form-control" value="Gestión académica, reportes y comunicados" readonly>
+      </div>
 
-    <h5 class="section-subtitle">Parámetros de asistencia</h5>
+      <h5 class="section-subtitle">Parámetros de asistencia</h5>
 
-    <div class="mb-3">
-      <label class="form-label">Umbral de faltas injustificadas</label>
-      <input type="number" class="form-control" value="3">
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Umbral de faltas injustificadas</label>
+        <input type="number" class="form-control" name="unjustifiedAbsenceThreshold" [(ngModel)]="formulario.unjustifiedAbsenceThreshold" required>
+      </div>
 
-    <div class="mb-4">
-      <label class="form-label">Tolerancia de tardanza en minutos</label>
-      <input type="number" class="form-control" value="10">
-    </div>
+      <div class="mb-4">
+        <label class="form-label">Tolerancia de tardanza en minutos</label>
+        <input type="number" class="form-control" name="latenessToleranceMinutes" [(ngModel)]="formulario.latenessToleranceMinutes" required>
+      </div>
 
-    <button type="button" class="btn-primary-custom">Guardar cambios</button>
-  </form>
-</div>
+      <button type="submit" class="btn-primary-custom" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </form>
+  </div>
+}

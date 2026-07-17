@@ -3,48 +3,82 @@
 <div class="section-card">
   <h5 class="section-subtitle">Crear comunicado</h5>
 
-  <form class="form-wrapper">
+  <form class="form-wrapper" (ngSubmit)="programarEnvio()">
     <div class="mb-3">
       <label class="form-label">Título del comunicado</label>
-      <input type="text" class="form-control" placeholder="Ej. Reunión de padres de familia">
+      <input type="text" class="form-control" placeholder="Ej. Reunión de padres de familia" name="subject" [(ngModel)]="formulario.subject" required>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Contenido del comunicado</label>
-      <textarea class="form-control" rows="5" placeholder="Escriba el contenido del comunicado"></textarea>
+      <textarea class="form-control" rows="5" placeholder="Escriba el contenido del comunicado" name="body" [(ngModel)]="formulario.body" required></textarea>
     </div>
 
     <h6 class="form-section-title">Segmentación de audiencia</h6>
 
     <div class="mb-3">
       <label class="form-label">Rol</label>
-      <select class="form-select">
-        <option selected>Seleccionar rol</option>
-        <option>Padres de familia</option>
-        <option>Estudiantes</option>
-        <option>Docentes</option>
+      <select class="form-select" name="audience" [(ngModel)]="formulario.audience" required>
+        <option value="" disabled selected>Seleccionar rol</option>
+        <option value="Teachers">Docentes</option>
+        <option value="Students">Estudiantes</option>
+        <option value="Parents">Padres de familia</option>
+        <option value="All">Todos</option>
       </select>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Grado</label>
-      <select class="form-select">
-        <option selected>Seleccionar grado</option>
-        <option>Primaria</option>
-        <option>Secundaria</option>
+      <select class="form-select" name="gradeLevel" [(ngModel)]="formulario.gradeLevel">
+        <option value="" disabled selected>Seleccionar grado</option>
+        <option value="Primaria">Primaria</option>
+        <option value="Secundaria">Secundaria</option>
       </select>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Fecha de envío</label>
-      <input type="date" class="form-control">
+      <input type="date" class="form-control" name="fecha" [(ngModel)]="formulario.fecha" required>
     </div>
 
     <div class="mb-4">
       <label class="form-label">Hora de envío</label>
-      <input type="time" class="form-control">
+      <input type="time" class="form-control" name="hora" [(ngModel)]="formulario.hora" required>
     </div>
 
-    <button type="button" class="btn-primary-custom">Programar envío</button>
+    <button type="submit" class="btn-primary-custom" [disabled]="enviando()">
+      {{ enviando() ? 'Programando...' : 'Programar envío' }}
+    </button>
   </form>
+</div>
+
+<!-- Lista de comunicados existentes -->
+<div class="section-card mt-4">
+  <h5 class="section-subtitle">Comunicados Programados</h5>
+
+  @if (loading()) {
+    <p class="text-muted">Cargando comunicados...</p>
+  } @else if (error()) {
+    <p class="text-danger">No se pudieron cargar los comunicados. Intenta de nuevo.</p>
+  } @else if (comunicados().length === 0) {
+    <p class="text-muted">No hay comunicados programados aún.</p>
+  } @else {
+    <div class="list-group">
+      @for (c of comunicados(); track c.id) {
+        <div class="list-group-item">
+          <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1 fw-bold">{{ c.titulo }}</h6>
+            <small class="text-muted">{{ c.fechaProgramada | date:'medium' }}</small>
+          </div>
+          <p class="mb-1 text-muted small">{{ c.contenido }}</p>
+          <div class="mt-2">
+            <span class="badge bg-primary me-2">Para: {{ c.audiencia }}</span>
+            @if (c.grado) {
+              <span class="badge bg-secondary">{{ c.grado }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>
