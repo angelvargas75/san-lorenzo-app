@@ -3,13 +3,13 @@
 <!-- Tarjetas de estadísticas (StatCards) -->
 <div class="row g-4 mb-5">
   <div class="col-md-3">
-    <app-stat-card label="Promedio General" [value]="promedio().toString()" trend="+0.8"></app-stat-card>
+    <app-stat-card label="Promedio General" [value]="promedio().toFixed(2)"></app-stat-card>
   </div>
   <div class="col-md-3">
-    <app-stat-card label="Asistencia" [value]="asistencia().toString() + '%'" trend="+2%"></app-stat-card>
+    <app-stat-card label="Asistencia" [value]="asistencia().toString() + '%'"></app-stat-card>
   </div>
   <div class="col-md-3">
-    <app-stat-card label="Tareas Pendientes" value="3" trend="-1" [trendUp]="false"></app-stat-card>
+    <app-stat-card label="Tareas Pendientes" [value]="pendientes().length.toString()"></app-stat-card>
   </div>
   <div class="col-md-3">
     <app-stat-card label="Cursos" [value]="numeroCursos().toString()"></app-stat-card>
@@ -19,80 +19,41 @@
 <!-- Sección Calificaciones -->
 <h2 class="section-subtitle">Calificaciones</h2>
 
-<div class="row g-4 mb-5">
-  <div class="col-md-6">
-    <div class="book-card">
-      <div>
-        <div class="small text-primary fw-bold mb-1">Matemáticas</div>
-        <div class="fw-bold fs-5 text-dark">Promedio: 85</div>
-        <div class="small text-muted">Primer Trimestre</div>
+@if (cursos().length === 0) {
+  <p class="text-muted mb-5">Aún no hay calificaciones registradas.</p>
+} @else {
+  <div class="row g-4 mb-5">
+    @for (curso of cursos(); track curso.courseId) {
+      <div class="col-md-6">
+        <div class="book-card">
+          <div>
+            <div class="small text-primary fw-bold mb-1">{{ curso.name }}</div>
+            <div class="fw-bold fs-5 text-dark">Promedio: {{ curso.average.toFixed(2) }}</div>
+            <div class="small text-muted">{{ curso.teacherName }}</div>
+          </div>
+          <div class="book-preview p-2 bg-light d-flex align-items-center justify-content-center">
+            <i class="bi bi-book text-muted"></i>
+          </div>
+        </div>
       </div>
-      <div class="book-preview p-2 bg-light d-flex align-items-center justify-content-center">
-        <i class="bi bi-book text-muted"></i>
-      </div>
-    </div>
+    }
   </div>
-  <div class="col-md-6">
-    <div class="book-card">
-      <div>
-        <div class="small text-primary fw-bold mb-1">Computacion</div>
-        <div class="fw-bold fs-5 text-dark">Promedio: 85</div>
-        <div class="small text-muted">Primer Trimestre</div>
-      </div>
-      <div class="book-preview p-2 bg-light d-flex align-items-center justify-content-center">
-        <i class="bi bi-laptop text-muted"></i>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6">
-    <div class="book-card">
-      <div>
-        <div class="small text-primary fw-bold mb-1">Ciencias</div>
-        <div class="fw-bold fs-5 text-dark">Promedio: 92</div>
-        <div class="small text-muted">Primer Trimestre</div>
-      </div>
-      <div class="book-preview bg-info bg-opacity-10 p-2 d-flex align-items-center justify-content-center">
-        <i class="bi bi-eyedropper text-info"></i>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6">
-    <div class="book-card">
-      <div>
-        <div class="small text-primary fw-bold mb-1">Letras</div>
-        <div class="fw-bold fs-5 text-dark">Promedio: 92</div>
-        <div class="small text-muted">Primer Trimestre</div>
-      </div>
-      <div class="book-preview bg-info bg-opacity-10 p-2 d-flex align-items-center justify-content-center">
-        <i class="bi bi-pen text-info"></i>
-      </div>
-    </div>
-  </div>
-</div>
+}
 
 <!-- Sección Tareas Pendientes -->
 <h2 class="section-subtitle">Tareas Pendientes</h2>
-<div class="bg-light rounded-3 p-3">
-  <div class="d-flex align-items-start mb-3 p-2">
-    <div class="me-3 bg-secondary bg-opacity-10 p-2 rounded"><i class="bi bi-book"></i></div>
-    <div>
-      <div class="fw-bold text-dark">Ensayo de Historia</div>
-      <div class="small text-muted">Fecha de entrega: 2024-05-15</div>
-    </div>
+@if (pendientes().length === 0) {
+  <p class="text-muted">No tienes tareas pendientes.</p>
+} @else {
+  <div class="bg-light rounded-3 p-3">
+    @for (tarea of pendientes(); track tarea.id) {
+      <div class="d-flex align-items-start mb-3 p-2">
+        <div class="me-3 bg-secondary bg-opacity-10 p-2 rounded"><i class="bi bi-book"></i></div>
+        <div>
+          <div class="fw-bold text-dark">{{ tarea.title }}</div>
+          <div class="small text-muted">{{ tarea.courseName }} · Fecha de entrega: {{ tarea.dueDate }}</div>
+        </div>
+      </div>
+    }
   </div>
-  <div class="d-flex align-items-start mb-3 p-2">
-    <div class="me-3 bg-secondary bg-opacity-10 p-2 rounded"><i class="bi bi-palette"></i></div>
-    <div>
-      <div class="fw-bold text-dark">Proyecto de Arte</div>
-      <div class="small text-muted">Fecha de entrega: 2024-05-16</div>
-    </div>
-  </div>
-  <div class="d-flex align-items-start p-2">
-    <div class="me-3 bg-secondary bg-opacity-10 p-2 rounded"><i class="bi bi-book"></i></div>
-    <div>
-      <div class="fw-bold text-dark">Proyecto de Letras</div>
-      <div class="small text-muted">Fecha de entrega: 2024-05-16</div>
-    </div>
-  </div>
-</div>
-
+}

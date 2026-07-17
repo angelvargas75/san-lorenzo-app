@@ -1,42 +1,61 @@
-import { Component } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { PageTitle } from '../../../shared/components/page-title/page-title';
+import { AlumnoApi, ScheduledClass } from '../alumno-api';
+
+interface Dia {
+  value: number; // 0 = domingo … 6 = sábado
+  label: string;
+}
 
 @Component({
   selector: 'app-horarios',
-  imports: [PageTitle, NgClass],
+  imports: [PageTitle],
   templateUrl: './horarios.html',
   styleUrl: './horarios.scss',
 })
-export class Horarios {
-  // Día actualmente seleccionado en el calendario
-  diaActivo: number = 15;
+export class Horarios implements OnInit {
+  private readonly api = inject(AlumnoApi);
 
-  // Texto que se muestra arriba según el día
-  diaSeleccionado: string = 'Lunes, 15 de Abril';
-
-  // Lista de clases del día
-  clases = [
-    { nombre: 'Matemáticas',      horario: '8:00 AM - 9:00 AM',   icono: 'bi-book' },
-    { nombre: 'Ciencias',         horario: '9:00 AM - 10:00 AM',  icono: 'bi-eyedropper' },
-    { nombre: 'Historia',         horario: '10:00 AM - 11:00 AM', icono: 'bi-map' },
-    { nombre: 'Almuerzo',         horario: '11:00 AM - 12:00 PM', icono: 'bi-cup-hot' },
-    { nombre: 'Inglés',           horario: '12:00 PM - 1:00 PM',  icono: 'bi-globe' },
-    { nombre: 'Educación Física', horario: '1:00 PM - 2:00 PM',   icono: 'bi-person-walking' },
+  readonly dias: Dia[] = [
+    { value: 1, label: 'Lunes' },
+    { value: 2, label: 'Martes' },
+    { value: 3, label: 'Miércoles' },
+    { value: 4, label: 'Jueves' },
+    { value: 5, label: 'Viernes' },
   ];
 
-  // Estructura del calendario (0 = celda vacía)
-  semanas: number[][] = [
-    [0, 1, 2, 3, 4, 5, 6],
-    [8, 9, 10, 11, 12, 13, 14],
-    [15, 16, 17, 18, 19, 20, 21],
-    [22, 23, 24, 25, 26, 27, 28],
-    [29, 30, 0, 0, 0, 0, 0],
-  ];
+  readonly clases = signal<ScheduledClass[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal(false);
 
-  // Al hacer clic en un día, lo marca como activo
-  seleccionarDia(dia: number): void {
-    this.diaActivo = dia;
-    this.diaSeleccionado = 'Día ' + dia + ' de Abril';
+  private readonly hoy = new Date().getDay();
+  readonly diaActivo = signal(this.hoy >= 1 && this.hoy <= 5 ? this.hoy : 1);
+
+  readonly clasesDelDia = computed(() =>
+    this.clases().filter((c) => c.dayOfWeek === this.diaActivo()),
+  );
+
+  ngOnInit(): void {
+    this.api.getSchedule().subscribe({
+      next: (r) => {
+        this.clases.set(r.classes);
+        // Si el día actual no tiene clases, abre en el primer día de la semana que sí.
+        if (!r.classes.some((c) => c.dayOfWeek === this.diaActivo())) {
+          const primero = this.dias.find((d) =>
+            r.classes.some((c) => c.dayOfWeek === d.value),
+          );
+          if (primero) this.diaActivo.set(primero.value);
+        }
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  seleccionarDia(value: number): void {
+    this.diaActivo.set(value);
   }
 }
